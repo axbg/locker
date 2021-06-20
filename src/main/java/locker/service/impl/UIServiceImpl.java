@@ -58,22 +58,24 @@ public class UIServiceImpl implements UIService {
 
     private void startOperation() {
         if (isInputValid()) {
-            File[] files;
-            if (sourceFile.isDirectory()) {
-                files = fileService.getFilesFromDestination(sourceFile);
-            } else {
-                files = new File[]{sourceFile};
+            if (!this.cryptoService.initCipher(password, operationMode)) {
+                this.panel.setStatus("Error during key initialization", Color.RED);
+                return;
             }
 
-            for (File file : files) {
-                byte[] content = this.cryptoService.doContentOperation(operationMode, file, password);
-                String name = this.cryptoService.doNameOperation(operationMode, file.getName(), password);
+            for (File file : this.fileService.getFilesFromDestination(sourceFile)) {
+                this.panel.setStatus("Working on " + file.getName(), Color.BLACK);
 
-                if (!fileService.saveFile(name, content)) {
+                String name = this.cryptoService.doNameOperation(file.getName());
+                byte[] content = this.cryptoService.doContentOperation(file);
+
+                if (!fileService.saveFile(destinationFile, name, content)) {
                     this.panel.setStatus("Error occurred during operation on " + file.getName(), Color.RED);
                     break;
                 }
             }
+
+            this.panel.setStatus("Finished!", Color.BLACK);
         }
     }
 

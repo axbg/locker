@@ -5,7 +5,9 @@ import locker.event.OperationMode;
 import java.io.File;
 
 public interface CryptoService {
-    byte[] doContentOperation(OperationMode operationMode, File file, String password);
+    boolean initCipher(String password, OperationMode mode);
 
-    String doNameOperation(OperationMode operationMode, String name, String password);
+    byte[] doContentOperation(File file);
+
+    String doNameOperation(String content);
 }
