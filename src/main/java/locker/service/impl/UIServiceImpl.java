@@ -67,11 +67,14 @@ public class UIServiceImpl implements UIService {
                 this.panel.setStatus("Working on " + file.getName(), Color.BLACK);
 
                 String name = this.cryptoService.doNameOperation(file.getName());
-                byte[] content = this.cryptoService.doContentOperation(file);
 
-                if (!fileService.saveFile(destinationFile, name, content)) {
-                    this.panel.setStatus("Error occurred during operation on " + file.getName(), Color.RED);
-                    break;
+                if (!this.fileService.versionAlreadyExisting(file, destinationFile, name)) {
+                    byte[] content = this.cryptoService.doContentOperation(file);
+
+                    if (!fileService.saveFile(destinationFile, name, content)) {
+                        this.panel.setStatus("Error occurred during operation on " + file.getName(), Color.RED);
+                        break;
+                    }
                 }
             }
 

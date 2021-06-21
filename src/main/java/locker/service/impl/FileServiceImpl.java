@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -29,6 +30,13 @@ public class FileServiceImpl implements FileService {
         } catch (IOException ex) {
             return false;
         }
+    }
+
+    @Override
+    public boolean versionAlreadyExisting(File sourceFile, File destination, String newFileName) {
+        return Arrays.stream(Objects.requireNonNull(destination.listFiles()))
+                .filter(file -> file.getName().equals(newFileName))
+                .anyMatch(file -> file.lastModified() > sourceFile.lastModified());
     }
 
     private File[] filterIgnoredFiles(File[] files) {
