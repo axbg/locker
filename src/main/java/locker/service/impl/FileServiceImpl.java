@@ -39,6 +39,15 @@ public class FileServiceImpl implements FileService {
                 .anyMatch(file -> file.lastModified() > sourceFile.lastModified());
     }
 
+    @Override
+    public long wipeAdditionalFiles(List<String> files, File destination) {
+        return Arrays.stream(Objects.requireNonNull(destination.listFiles()))
+                .filter(file -> !files.contains(file.getName()))
+                .map(File::delete)
+                .filter(value -> value)
+                .count();
+    }
+
     private File[] filterIgnoredFiles(File[] files) {
         return Arrays.stream(files)
                 .filter(file -> !IGNORED_FILES.contains(file.getName().toUpperCase()))

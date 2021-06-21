@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UIServiceImpl implements UIService {
@@ -58,6 +60,9 @@ public class UIServiceImpl implements UIService {
 
     private void startOperation() {
         if (isInputValid()) {
+            int updated = 0;
+            List<String> currentFiles = new ArrayList<>();
+
             if (!this.cryptoService.initCipher(password, operationMode)) {
                 this.panel.setStatus("Error during key initialization", Color.RED);
                 return;
@@ -67,8 +72,10 @@ public class UIServiceImpl implements UIService {
                 this.panel.setStatus("Working on " + file.getName(), Color.BLACK);
 
                 String name = this.cryptoService.doNameOperation(file.getName());
+                currentFiles.add(name);
 
                 if (!this.fileService.versionAlreadyExisting(file, destinationFile, name)) {
+                    updated++;
                     byte[] content = this.cryptoService.doContentOperation(file);
 
                     if (!fileService.saveFile(destinationFile, name, content)) {
@@ -78,7 +85,9 @@ public class UIServiceImpl implements UIService {
                 }
             }
 
-            this.panel.setStatus("Finished!", Color.BLACK);
+            long removed = this.fileService.wipeAdditionalFiles(currentFiles, destinationFile);
+
+            this.panel.setStatus("Finished! Updated " + updated + " and removed " + removed + " additional files", Color.BLACK);
         }
     }
 
@@ -87,7 +96,7 @@ public class UIServiceImpl implements UIService {
             this.panel.setStatus(SOURCE_FILE_MISSING, Color.RED);
             return false;
         } else if (this.destinationFile == null) {
-            this.panel.setStatus(SOURCE_FILE_MISSING, Color.RED);
+            this.panel.setStatus(DESTINATION_FILE_MISSING, Color.RED);
             return false;
         } else {
             this.panel.setStatus("", Color.BLACK);
