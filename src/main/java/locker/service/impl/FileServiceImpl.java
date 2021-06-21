@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Service
 public class FileServiceImpl implements FileService {
-    private final static List<String> IGNORED_FILES = Collections.singletonList(".DS_STORE");
+    private static final List<String> IGNORED_FILES = Collections.singletonList(".DS_STORE");
 
     @Override
     public File[] getFilesFromDestination(File file) {

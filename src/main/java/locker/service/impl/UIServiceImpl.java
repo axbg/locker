@@ -15,9 +15,9 @@ import java.util.List;
 
 @Service
 public class UIServiceImpl implements UIService {
-    private final static String SOURCE_FILE_MISSING = "Source file was not selected!";
-    private final static String DESTINATION_FILE_MISSING = "Destination file was not selected";
-    private final static String PANEL_TITLE = "Locker";
+    private static final String SOURCE_FILE_MISSING = "Source file was not selected!";
+    private static final String DESTINATION_FILE_MISSING = "Destination file was not selected";
+    private static final String PANEL_TITLE = "Locker";
 
     private final Panel panel;
     private final FileService fileService;

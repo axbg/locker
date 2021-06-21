@@ -8,8 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Panel extends JFrame {
-    private final static String STATUS_EMPTY_PASSWORD = "Password cannot be empty";
-    private final static OperationMode[] OPERATION_MODES = new OperationMode[]{OperationMode.ENCRYPT, OperationMode.DECRYPT};
+    private static final String STATUS_EMPTY_PASSWORD = "Password cannot be empty";
+    private static final OperationMode[] OPERATION_MODES = new OperationMode[]{OperationMode.ENCRYPT, OperationMode.DECRYPT};
 
     private final JLabel sourceLabel = new JLabel();
     private final JButton sourceButton = new JButton();
