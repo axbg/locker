@@ -17,6 +17,16 @@ public class Preference {
         this.operationMode = operationMode;
     }
 
+    public Preference(String content) {
+        String[] properties = content.split("\n");
+
+        this.name = properties[0];
+        this.source = properties[1];
+        this.destination = properties[2];
+        this.password = properties[3];
+        this.operationMode = ("1").equals(properties[4]) ? OperationMode.ENCRYPT : OperationMode.DECRYPT;
+    }
+
     public String getName() {
         return name;
     }
@@ -35,5 +45,11 @@ public class Preference {
 
     public OperationMode getOperationMode() {
         return operationMode;
+    }
+
+    @Override
+    public String toString() {
+        return name + "\n" + source + "\n" + destination + "\n" + password
+                + "\n" + (operationMode == OperationMode.ENCRYPT ? "1" : "0");
     }
 }

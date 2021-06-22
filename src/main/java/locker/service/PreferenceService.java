@@ -5,11 +5,11 @@ import locker.object.Preference;
 import java.util.List;
 
 public interface PreferenceService {
-    List<String> getAvailablePreferences();
+    List<String> getPreferencesNames();
 
     Preference getPreference(String name);
 
     void savePreference(Preference preference);
 
-    void removePreference(int position);
+    void removePreference(String name);
 }

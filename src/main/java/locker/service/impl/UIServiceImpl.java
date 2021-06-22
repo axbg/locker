@@ -4,6 +4,7 @@ import locker.event.OperationMode;
 import locker.event.UIEvent;
 import locker.service.CryptoService;
 import locker.service.FileService;
+import locker.service.PreferenceService;
 import locker.service.UIService;
 import locker.ui.Panel;
 import org.springframework.stereotype.Service;
@@ -15,23 +16,27 @@ import java.util.List;
 
 @Service
 public class UIServiceImpl implements UIService {
-    private static final String SOURCE_FILE_MISSING = "Source file was not selected!";
-    private static final String DESTINATION_FILE_MISSING = "Destination file was not selected";
-    private static final String PANEL_TITLE = "Locker";
+    private final static String PANEL_TITLE = "Locker";
+    private final static String SOURCE_FILE_MISSING = "Source file was not selected!";
+    private final static String DESTINATION_FILE_MISSING = "Destination file was not selected";
 
     private final Panel panel;
     private final FileService fileService;
     private final CryptoService cryptoService;
+    private final PreferenceService preferenceService;
 
     private File sourceFile;
     private File destinationFile;
     private OperationMode operationMode = OperationMode.ENCRYPT;
     private String password;
 
-    public UIServiceImpl(FileService fileService, CryptoService cryptoService) {
-        this.panel = new Panel(PANEL_TITLE, this::handleUIEvent);
+    public UIServiceImpl(FileService fileService, CryptoService cryptoService, PreferenceService preferenceService) {
         this.fileService = fileService;
         this.cryptoService = cryptoService;
+        this.preferenceService = preferenceService;
+
+        this.panel = new Panel(PANEL_TITLE, this::handleUIEvent);
+        this.panel.setPreferences(this.preferenceService.getPreferencesNames());
     }
 
     @Override
@@ -49,6 +54,13 @@ public class UIServiceImpl implements UIService {
                 break;
             case OPERATION_MODE_SELECTED:
                 this.operationMode = (OperationMode) resource;
+                break;
+            case LOAD_PREFERENCE:
+                this.panel.setStatus("", Color.BLACK);
+                this.panel.displayPreference(this.preferenceService.getPreference((String) resource));
+                break;
+            case LOAD_PREFERENCE_ERROR:
+                this.panel.setStatus((String) resource, Color.RED);
                 break;
             case START:
                 this.password = (String) resource;
