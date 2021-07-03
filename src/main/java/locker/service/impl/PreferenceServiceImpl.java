@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,13 +55,35 @@ public class PreferenceServiceImpl implements PreferenceService {
 
     @Override
     public void savePreference(Preference preference) {
+        this.cryptoService.initCipher(this.preferenceFilePassword, OperationMode.ENCRYPT);
+        String encryptedPreference = this.cryptoService.doNameOperation(preference.toString()) + "\n";
+
+        try {
+            Files.write(this.lockerHomePath, encryptedPreference.getBytes(),
+                    this.lockerHomePath.toFile().exists() ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW);
+        } catch (IOException ignored) {
+        }
+
+        this.preferences.put(preference.getName(), preference);
     }
 
     @Override
     public void removePreference(String name) {
+        this.cryptoService.initCipher(this.preferenceFilePassword, OperationMode.ENCRYPT);
+        byte[] content = this.preferences.values().stream()
+                .filter(preference -> !name.equals(preference.getName()))
+                .map(preference -> this.cryptoService.doNameOperation(preference.toString()) + "\n")
+                .reduce("", (result, preference) -> result + preference)
+                .getBytes();
+
+        try {
+            Files.write(this.lockerHomePath, content);
+        } catch (IOException ignored) {
+        }
+
+        this.preferences.remove(name);
     }
 
-    // format: name/nsource/ndestination/npassword/nopMode
     private void loadAvailablePreferences() {
         this.cryptoService.initCipher(this.preferenceFilePassword, OperationMode.DECRYPT);
 
@@ -68,7 +91,7 @@ public class PreferenceServiceImpl implements PreferenceService {
             try {
                 for (String line : Files.readAllLines(lockerHomePath)) {
                     String decryptedLine = this.cryptoService.doNameOperation(line);
-                    this.preferences.put(decryptedLine.split("\n")[0], new Preference(decryptedLine));
+                    this.preferences.put(decryptedLine.split("\r\n")[0], new Preference(decryptedLine));
                 }
             } catch (IOException ignored) {
             }

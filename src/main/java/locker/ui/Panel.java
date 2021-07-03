@@ -17,17 +17,26 @@ public class Panel extends JFrame {
     private final JLabel sourceLabel = new JLabel();
     private final JButton sourceButton = new JButton();
     private final JFileChooser sourceChooser = new JFileChooser();
+
     private final JLabel destinationLabel = new JLabel();
     private final JButton destinationButton = new JButton();
     private final JFileChooser destinationChooser = new JFileChooser();
+
     private final JLabel passwordLabel = new JLabel();
     private final JPasswordField passwordField = new JPasswordField();
+
+    private final JButton savePreferenceButton = new JButton();
+
     private final JComboBox<OperationMode> operationComboBox = new JComboBox<>(OPERATION_MODES);
+
     private final JButton startButton = new JButton();
+
     private final JLabel statusLabel = new JLabel();
-    private final JLabel preferencesLabel = new JLabel();
-    private final JComboBox<String> preferencesComboBox = new JComboBox<>();
-    private final JButton preferencesButton = new JButton();
+
+    private final JLabel loadPreferenceLabel = new JLabel();
+    private final JComboBox<String> loadPreferenceComboBox = new JComboBox<>();
+    private final JButton loadPreferenceButton = new JButton();
+    private final JButton removePreferenceButton = new JButton();
 
     private final UIEventHandler eventHandler;
 
@@ -51,11 +60,26 @@ public class Panel extends JFrame {
         this.initFileChooser(sourceLabel, sourceButton, sourceChooser, "Source location", UIEvent.SOURCE_FILE_SELECTED, JFileChooser.FILES_AND_DIRECTORIES, 50, 0);
         this.initFileChooser(destinationLabel, destinationButton, destinationChooser, "Destination location", UIEvent.DESTINATION_FILE_SELECTED, JFileChooser.DIRECTORIES_ONLY, 50, 60);
 
-
         this.passwordLabel.setText("Insert your password");
         this.passwordLabel.setBounds(150, 110, 200, 20);
         this.passwordField.setEchoChar('*');
         this.passwordField.setBounds(110, 130, 200, 40);
+
+        this.savePreferenceButton.setText("Save preference");
+        this.savePreferenceButton.setBounds(320, 170, 150, 20);
+        this.savePreferenceButton.addActionListener(a -> {
+            String name = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Insert a name for the new preference",
+                    "Save preference",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    ""
+            );
+
+            this.eventHandler.handle(UIEvent.SAVE_PREFERENCE, new String(this.passwordField.getPassword()), name);
+        });
 
         this.operationComboBox.setBounds(110, 170, 200, 30);
         this.operationComboBox.addActionListener(a -> this.eventHandler.handle(UIEvent.OPERATION_MODE_SELECTED, this.operationComboBox.getSelectedItem()));
@@ -71,26 +95,34 @@ public class Panel extends JFrame {
             }
         });
 
-        this.statusLabel.setText("Test status");
+        this.statusLabel.setText("Here is the current status displayed");
         this.statusLabel.setBounds(150, 240, 400, 20);
 
-        this.preferencesLabel.setText("Load a preference");
-        this.preferencesLabel.setBounds(110, 260, 200, 20);
+        this.loadPreferenceLabel.setText("Load a preference");
+        this.loadPreferenceLabel.setBounds(110, 260, 200, 20);
 
-        this.preferencesComboBox.setBounds(110, 280, 200, 30);
+        this.loadPreferenceComboBox.setBounds(110, 280, 200, 30);
 
-        this.preferencesButton.setText("Load");
-        this.preferencesButton.setBounds(110, 320, 50, 20);
-        this.preferencesButton.addActionListener(a -> this.eventHandler.handle(UIEvent.LOAD_PREFERENCE, this.preferencesComboBox.getSelectedItem()));
+        this.loadPreferenceButton.setText("Load");
+        this.loadPreferenceButton.setBounds(110, 320, 50, 20);
+        this.loadPreferenceButton.addActionListener(a -> this.eventHandler.handle(UIEvent.LOAD_PREFERENCE, this.loadPreferenceComboBox.getSelectedItem()));
+
+        this.removePreferenceButton.setText("Remove");
+        this.removePreferenceButton.setBounds(180, 320, 50, 20);
+        this.removePreferenceButton.addActionListener(a -> this.eventHandler.handle(UIEvent.REMOVE_PREFERENCE, this.loadPreferenceComboBox.getSelectedItem()));
+
+        this.togglePreferenceControls(false);
 
         this.add(passwordLabel);
         this.add(passwordField);
+        this.add(savePreferenceButton);
         this.add(operationComboBox);
         this.add(startButton);
         this.add(statusLabel);
-        this.add(preferencesLabel);
-        this.add(preferencesComboBox);
-        this.add(preferencesButton);
+        this.add(loadPreferenceLabel);
+        this.add(loadPreferenceComboBox);
+        this.add(loadPreferenceButton);
+        this.add(removePreferenceButton);
     }
 
     private void initFileChooser(final JLabel label, final JButton button, final JFileChooser chooser,
@@ -114,14 +146,15 @@ public class Panel extends JFrame {
     }
 
     public void setPreferences(List<String> preferences) {
+        this.loadPreferenceComboBox.removeAllItems();
+
         if (preferences.isEmpty()) {
-            this.preferencesComboBox.setEnabled(false);
+            this.togglePreferenceControls(false);
             return;
         }
 
-        this.preferencesComboBox.removeAllItems();
-        preferences.forEach(this.preferencesComboBox::addItem);
-        this.preferencesComboBox.setEnabled(true);
+        preferences.forEach(this.loadPreferenceComboBox::addItem);
+        this.togglePreferenceControls(true);
     }
 
     public void displayPreference(Preference preference) {
@@ -151,5 +184,11 @@ public class Panel extends JFrame {
     public void setStatus(String status, Color color) {
         this.statusLabel.setText(status);
         this.statusLabel.setForeground(color);
+    }
+
+    private void togglePreferenceControls(boolean state) {
+        this.loadPreferenceComboBox.setEnabled(state);
+        this.loadPreferenceButton.setEnabled(state);
+        this.removePreferenceButton.setEnabled(state);
     }
 }
