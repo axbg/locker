@@ -1,0 +1,166 @@
+JFDML JFormDesigner: "7.0.4.0.360" Java: "11.0.11" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.memberVariableThis": true
+		}
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {space :::x, comp startOperationButton:::::x, space :::x}, seq {space :p:29:p, par l {seq {comp destinationLocationField:::p:482:p, space u:::p, comp destinationButton:::p:84:p}, seq l {comp sourceLocationField:::p:482:p, space u:::p, comp sourceButton:::p:84:p}, comp operationLabel::l:p::p, comp savePreferenceButton::l:p:128:p, comp passwordLabel::l:p::p, comp destinationLabel::l:p::p, comp sourceLabel::l:p::p, seq l {comp loadPreferenceLabel:::p::p, space s:::p, comp loadPreferenceComboBox:::p:364:p, space u:::p, comp removePreferenceButton:::p:84:p}, comp passwordField::l:p:177:p, comp operationComboBox::l:p:185:p}, space ::45:x}}"
+			"$verticalGroup": "par l {seq t {space :p:23:p, par b {comp removePreferenceButton::b:p:34:p, comp loadPreferenceLabel::b:p::p, comp loadPreferenceComboBox::b:p:34:p}, space :p:37:p, comp sourceLabel:::p::p, space :::p, par b {comp sourceLocationField::b:p:34:p, comp sourceButton::b:p:34:p}, space u:::p, comp destinationLabel:::p::p, space :::p, par b {comp destinationButton::b:p:34:p, comp destinationLocationField::b:p:34:p}, space :p:13:p, comp passwordLabel:::p::p, space :::p, comp passwordField:::p:32:p, space :p:12:p, comp operationLabel:::p::p, space :::p, comp operationComboBox:::p:33:p, space :::p, comp savePreferenceButton:::p:39:p, space :p:30:p, comp startOperationButton::::42:x, space :p:17:p}}"
+		} ) {
+			name: "this"
+			"title": "Locker"
+			"resizable": false
+			"$locationPolicy": 1
+			"defaultCloseOperation": 3
+			auxiliary() {
+				"JavaCodeGenerator.variableModifiers": 18
+			}
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "loadPreferenceLabel"
+				"text": "Load preference"
+				"labelFor": new FormReference( "loadPreferenceComboBox" )
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "loadPreferenceComboBox"
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+					"JavaCodeGenerator.typeParameters": "String"
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "loadPreferenceComboBoxActionPerformed", false ) )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "sourceLabel"
+				"text": "Source location"
+				"labelFor": new FormReference( "sourceLocationField" )
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "sourceLocationField"
+				"editable": false
+				"text": "The location that will be used as input..."
+				"enabled": false
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "sourceButton"
+				"text": "Browse..."
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "sourceButtonActionPerformed", false ) )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "destinationLabel"
+				"text": "Destination location"
+				"labelFor": new FormReference( "destinationLocationField" )
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "destinationLocationField"
+				"editable": false
+				"text": "The location where the results will be written..."
+				"enabled": false
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "destinationButton"
+				"text": "Browse..."
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "destinationButtonActionPerformed", false ) )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "passwordLabel"
+				"text": "Password"
+				"labelFor": new FormReference( "passwordField" )
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+			} )
+			add( new FormComponent( "javax.swing.JPasswordField" ) {
+				name: "passwordField"
+				"echoChar": '*'
+				"toolTipText": "Insert a very hard to guess password"
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "operationLabel"
+				"text": "Operation *"
+				"labelFor": new FormReference( "operationComboBox" )
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "operationComboBox"
+				"toolTipText": "Select the desired operation"
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+					"JavaCodeGenerator.typeParameters": "OperationMode"
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "operationComboBoxActionPerformed", false ) )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "removePreferenceButton"
+				"text": "Remove"
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "removePreferenceButtonActionPerformed", false ) )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "savePreferenceButton"
+				"text": "Save Preference"
+				"background": sfield java.awt.Color white
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "savePreferenceButtonActionPerformed", false ) )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "startOperationButton"
+				"text": "Encrypt"
+				"background": sfield java.awt.Color white
+				auxiliary() {
+					"JavaCodeGenerator.variableModifiers": 18
+					"JavaCodeGenerator.customCreate": true
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "startOperationButtonActionPerformed", false ) )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 655, 510 )
+		} )
+	}
+}

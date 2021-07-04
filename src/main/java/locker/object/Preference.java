@@ -3,6 +3,8 @@ package locker.object;
 import locker.event.OperationMode;
 
 public class Preference {
+    private static final String SEPARATOR = "\r\n";
+
     private final String name;
     private final String source;
     private final String destination;
@@ -18,7 +20,7 @@ public class Preference {
     }
 
     public Preference(String content) {
-        String[] properties = content.split("\r\n");
+        String[] properties = content.split(SEPARATOR);
 
         this.name = properties[0];
         this.source = properties[1];
@@ -49,7 +51,7 @@ public class Preference {
 
     @Override
     public String toString() {
-        return name + "\r\n" + source + "\r\n" + destination + "\r\n" + password
-                + "\r\n" + (operationMode == OperationMode.ENCRYPT ? "1" : "0");
+        return name + SEPARATOR + source + SEPARATOR + destination + SEPARATOR + password
+                + SEPARATOR + (operationMode == OperationMode.ENCRYPT ? "1" : "0");
     }
 }

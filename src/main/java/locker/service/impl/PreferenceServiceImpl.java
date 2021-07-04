@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +30,7 @@ public class PreferenceServiceImpl implements PreferenceService {
     public PreferenceServiceImpl(CryptoService cryptoService) {
         this.lockerHomePath = Path.of(System.getProperty("user.home"), PREFERENCE_FILE_LOCATION);
         this.cryptoService = cryptoService;
-        this.preferences = new HashMap<>();
+        this.preferences = new LinkedHashMap<>();
 
         String password = PREFERENCE_FILE_BACKUP_PASSWORD;
         try {
