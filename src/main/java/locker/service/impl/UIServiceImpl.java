@@ -7,6 +7,7 @@ import locker.service.CryptoService;
 import locker.service.FileService;
 import locker.service.PreferenceService;
 import locker.service.UIService;
+import locker.ui.MainFrame;
 import locker.ui.Panel;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,8 @@ public class UIServiceImpl implements UIService {
     private final static String DESTINATION_FILE_MISSING = "Destination file was not selected";
 
     private final Panel panel;
+    private final MainFrame mainFrame;
+
     private final FileService fileService;
     private final CryptoService cryptoService;
     private final PreferenceService preferenceService;
@@ -36,8 +39,12 @@ public class UIServiceImpl implements UIService {
         this.cryptoService = cryptoService;
         this.preferenceService = preferenceService;
 
-        this.panel = new Panel(PANEL_TITLE, this::handleUIEvent);
-        this.panel.setPreferences(this.preferenceService.getPreferencesNames());
+        this.panel = null;
+//        this.panel = new Panel(PANEL_TITLE, this::handleUIEvent);
+//        this.panel.setPreferences(this.preferenceService.getPreferencesNames());
+
+        this.mainFrame = new MainFrame(this::handleUIEvent);
+        this.mainFrame.setVisible(true);
     }
 
     @Override
