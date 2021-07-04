@@ -3,13 +3,16 @@ package locker.ui;
 import locker.event.OperationMode;
 import locker.event.UIEvent;
 import locker.event.UIEventHandler;
+import locker.object.Preference;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.util.List;
 
 public class Panel extends JFrame {
-    private final static String STATUS_EMPTY_PASSWORD = "Password cannot be empty";
-    private final static OperationMode[] OPERATION_MODES = new OperationMode[]{OperationMode.ENCRYPT, OperationMode.DECRYPT};
+    private static final String STATUS_EMPTY_PASSWORD = "Password cannot be empty";
+    private static final OperationMode[] OPERATION_MODES = new OperationMode[]{OperationMode.ENCRYPT, OperationMode.DECRYPT};
 
     private final JLabel sourceLabel = new JLabel();
     private final JButton sourceButton = new JButton();
@@ -22,13 +25,20 @@ public class Panel extends JFrame {
     private final JLabel passwordLabel = new JLabel();
     private final JPasswordField passwordField = new JPasswordField();
 
+    private final JButton savePreferenceButton = new JButton();
+
     private final JComboBox<OperationMode> operationComboBox = new JComboBox<>(OPERATION_MODES);
 
     private final JButton startButton = new JButton();
 
     private final JLabel statusLabel = new JLabel();
 
-    private UIEventHandler eventHandler;
+    private final JLabel loadPreferenceLabel = new JLabel();
+    private final JComboBox<String> loadPreferenceComboBox = new JComboBox<>();
+    private final JButton loadPreferenceButton = new JButton();
+    private final JButton removePreferenceButton = new JButton();
+
+    private final UIEventHandler eventHandler;
 
     public Panel(String title, UIEventHandler eventHandler) {
         super(title);
@@ -40,7 +50,7 @@ public class Panel extends JFrame {
     }
 
     private void initLayout() {
-        this.setSize(500, 340);
+        this.setSize(500, 400);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(null);
         this.setLocationRelativeTo(null);
@@ -54,6 +64,22 @@ public class Panel extends JFrame {
         this.passwordLabel.setBounds(150, 110, 200, 20);
         this.passwordField.setEchoChar('*');
         this.passwordField.setBounds(110, 130, 200, 40);
+
+        this.savePreferenceButton.setText("Save preference");
+        this.savePreferenceButton.setBounds(320, 170, 150, 20);
+        this.savePreferenceButton.addActionListener(a -> {
+            String name = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Insert a name for the new preference",
+                    "Save preference",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    ""
+            );
+
+            this.eventHandler.handle(UIEvent.SAVE_PREFERENCE, new String(this.passwordField.getPassword()), name);
+        });
 
         this.operationComboBox.setBounds(110, 170, 200, 30);
         this.operationComboBox.addActionListener(a -> this.eventHandler.handle(UIEvent.OPERATION_MODE_SELECTED, this.operationComboBox.getSelectedItem()));
@@ -69,14 +95,34 @@ public class Panel extends JFrame {
             }
         });
 
-        this.statusLabel.setText("Test status");
+        this.statusLabel.setText("Here is the current status displayed");
         this.statusLabel.setBounds(150, 240, 400, 20);
+
+        this.loadPreferenceLabel.setText("Load a preference");
+        this.loadPreferenceLabel.setBounds(110, 260, 200, 20);
+
+        this.loadPreferenceComboBox.setBounds(110, 280, 200, 30);
+
+        this.loadPreferenceButton.setText("Load");
+        this.loadPreferenceButton.setBounds(110, 320, 50, 20);
+        this.loadPreferenceButton.addActionListener(a -> this.eventHandler.handle(UIEvent.LOAD_PREFERENCE, this.loadPreferenceComboBox.getSelectedItem()));
+
+        this.removePreferenceButton.setText("Remove");
+        this.removePreferenceButton.setBounds(180, 320, 50, 20);
+        this.removePreferenceButton.addActionListener(a -> this.eventHandler.handle(UIEvent.REMOVE_PREFERENCE, this.loadPreferenceComboBox.getSelectedItem()));
+
+        this.togglePreferenceControls(false);
 
         this.add(passwordLabel);
         this.add(passwordField);
+        this.add(savePreferenceButton);
         this.add(operationComboBox);
         this.add(startButton);
         this.add(statusLabel);
+        this.add(loadPreferenceLabel);
+        this.add(loadPreferenceComboBox);
+        this.add(loadPreferenceButton);
+        this.add(removePreferenceButton);
     }
 
     private void initFileChooser(final JLabel label, final JButton button, final JFileChooser chooser,
@@ -99,8 +145,50 @@ public class Panel extends JFrame {
         this.add(chooser);
     }
 
+    public void setPreferences(List<String> preferences) {
+        this.loadPreferenceComboBox.removeAllItems();
+
+        if (preferences.isEmpty()) {
+            this.togglePreferenceControls(false);
+            return;
+        }
+
+        preferences.forEach(this.loadPreferenceComboBox::addItem);
+        this.togglePreferenceControls(true);
+    }
+
+    public void displayPreference(Preference preference) {
+        File source = new File(preference.getSource());
+        File destination = new File(preference.getDestination());
+
+        if (!source.exists()) {
+            this.eventHandler.handle(UIEvent.LOAD_PREFERENCE_ERROR, "Source file not found");
+            return;
+        } else if (!destination.exists()) {
+            this.eventHandler.handle(UIEvent.LOAD_PREFERENCE_ERROR, "Destination file not found");
+            return;
+        } else if (preference.getPassword().isBlank()) {
+            this.eventHandler.handle(UIEvent.LOAD_PREFERENCE_ERROR, "Loaded password is blank");
+            return;
+        }
+
+        this.sourceLabel.setText(preference.getSource());
+        this.destinationLabel.setText(preference.getDestination());
+        this.passwordField.setText(preference.getPassword());
+        this.operationComboBox.setSelectedItem(preference.getOperationMode());
+
+        this.eventHandler.handle(UIEvent.SOURCE_FILE_SELECTED, source);
+        this.eventHandler.handle(UIEvent.DESTINATION_FILE_SELECTED, destination);
+    }
+
     public void setStatus(String status, Color color) {
         this.statusLabel.setText(status);
         this.statusLabel.setForeground(color);
+    }
+
+    private void togglePreferenceControls(boolean state) {
+        this.loadPreferenceComboBox.setEnabled(state);
+        this.loadPreferenceButton.setEnabled(state);
+        this.removePreferenceButton.setEnabled(state);
     }
 }
