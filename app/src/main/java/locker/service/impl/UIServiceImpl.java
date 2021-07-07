@@ -24,11 +24,11 @@ public class UIServiceImpl implements UIService {
     private static final String ERROR_DURING_KEY_INIT = "Error during key initialization";
     private static final String ERROR_DURING_OPERATION = "Error occurred during operation on ";
 
-    private final MainFrame mainFrame;
-
     private final FileService fileService;
     private final CryptoService cryptoService;
     private final PreferenceService preferenceService;
+
+    private MainFrame mainFrame;
 
     private File sourceFile;
     private File destinationFile;
@@ -39,17 +39,17 @@ public class UIServiceImpl implements UIService {
         this.fileService = fileService;
         this.cryptoService = cryptoService;
         this.preferenceService = preferenceService;
-
-        this.mainFrame = new MainFrame(this::handleUIEvent);
-        this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
     }
 
     @Override
-    public void loadUI() {
+    public void loadUI(MainFrame frame) {
+        this.mainFrame = frame;
+        this.mainFrame.setEventHandler(this::handleUIEvent);
+        this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
         this.mainFrame.setVisible(true);
     }
 
-    public void handleUIEvent(UIEvent event, Object... resource) {
+    private void handleUIEvent(UIEvent event, Object... resource) {
         switch (event) {
             case SOURCE_FILE_SELECTED:
                 this.sourceFile = (File) resource[0];

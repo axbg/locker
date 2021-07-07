@@ -1,6 +1,7 @@
 package locker;
 
 import locker.service.UIService;
+import locker.ui.MainFrame;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -19,6 +20,6 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        this.uiService.loadUI();
+        this.uiService.loadUI(new MainFrame());
     }
 }

@@ -20,7 +20,7 @@ public class MainFrame extends JFrame {
     private static final String PREFERENCE_PLACEHOLDER = "---------";
     private static final OperationMode[] OPERATION_MODES = new OperationMode[]{OperationMode.ENCRYPT, OperationMode.DECRYPT};
 
-    private final UIEventHandler eventHandler;
+    private UIEventHandler eventHandler;
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     // Generated using JFormDesigner Evaluation license - unknown
@@ -43,9 +43,7 @@ public class MainFrame extends JFrame {
     private final JFileChooser sourceChooser;
     private final JFileChooser destinationChooser;
 
-    public MainFrame(UIEventHandler eventHandler) {
-        this.eventHandler = eventHandler;
-
+    public MainFrame() {
         this.loadPreferenceLabel = new JLabel();
         this.loadPreferenceComboBox = new JComboBox<>();
         this.removePreferenceButton = new JButton();
@@ -70,6 +68,10 @@ public class MainFrame extends JFrame {
         this.startOperationButton = new JButton();
 
         initComponents();
+    }
+
+    public void setEventHandler(UIEventHandler eventHandler) {
+        this.eventHandler = eventHandler;
     }
 
     private void initComponents() {
