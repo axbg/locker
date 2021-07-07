@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Packaging" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="packaging.Application" />
+    <module name="packaging" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="packaging.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
