@@ -99,7 +99,7 @@ public class MainFrame extends JFrame {
 
         //---- sourceLocationField ----
         this.sourceLocationField.setEditable(false);
-        this.sourceLocationField.setText("The location that will be used as input...");
+        this.sourceLocationField.setText("The file or directory that will be used as input...");
         this.sourceLocationField.setEnabled(false);
 
         //---- sourceButton ----
@@ -112,7 +112,7 @@ public class MainFrame extends JFrame {
 
         //---- destinationLocationField ----
         this.destinationLocationField.setEditable(false);
-        this.destinationLocationField.setText("The location where the results will be written...");
+        this.destinationLocationField.setText("The directory where the results will be written...");
         this.destinationLocationField.setEnabled(false);
 
         //---- destinationButton ----
