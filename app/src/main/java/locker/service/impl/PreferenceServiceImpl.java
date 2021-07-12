@@ -6,6 +6,7 @@ import locker.service.CryptoService;
 import locker.service.PreferenceService;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class PreferenceServiceImpl implements PreferenceService {
     private static final String PREFERENCE_FILE_LOCATION = ".locker";
     private static final String PREFERENCE_FILE_BACKUP_PASSWORD = "no-localhost-name";
+    private static final String EXPORTED_PREFERENCES_FILE_NAME = "/locker_exported_preferences.bin";
 
     private final Path lockerHomePath;
     private final CryptoService cryptoService;
@@ -76,12 +78,24 @@ public class PreferenceServiceImpl implements PreferenceService {
                 .reduce("", (result, preference) -> result + preference)
                 .getBytes();
 
-        try {
-            Files.write(this.lockerHomePath, content);
-        } catch (IOException ignored) {
+        this.saveToDisk(content, this.lockerHomePath);
+        this.preferences.remove(name);
+    }
+
+    @Override
+    public boolean exportPreferences(String password, File file) {
+        if (!file.exists() || !file.isDirectory()) {
+            return false;
         }
 
-        this.preferences.remove(name);
+        this.cryptoService.initCipher(password, OperationMode.ENCRYPT);
+        byte[] content = this.preferences.values().stream()
+                .map(preference -> this.cryptoService.doNameOperation(preference.toString()) + "\n")
+                .reduce("", (result, preference) -> result + preference)
+                .getBytes();
+
+        saveToDisk(content, Path.of(file.getAbsolutePath() + EXPORTED_PREFERENCES_FILE_NAME));
+        return true;
     }
 
     private void loadAvailablePreferences() {
@@ -95,6 +109,13 @@ public class PreferenceServiceImpl implements PreferenceService {
                 }
             } catch (IOException ignored) {
             }
+        }
+    }
+
+    private void saveToDisk(byte[] content, Path path) {
+        try {
+            Files.write(path, content);
+        } catch (IOException ignored) {
         }
     }
 }

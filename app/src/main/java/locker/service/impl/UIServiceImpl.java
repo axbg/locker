@@ -21,6 +21,8 @@ import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 public class UIServiceImpl implements UIService {
     private static final String SOURCE_FILE_MISSING = "Source file was not selected!";
     private static final String DESTINATION_FILE_MISSING = "Destination file was not selected";
+    private static final String PREFERENCES_EXPORT_FINISHED = "The preferences were exported!";
+    private static final String PREFERENCES_EXPORT_ERROR = "An error occurred during preferences exporting!";
     private static final String ERROR_DURING_KEY_INIT = "Error during key initialization";
     private static final String ERROR_DURING_OPERATION = "Error occurred during operation on ";
 
@@ -72,6 +74,10 @@ public class UIServiceImpl implements UIService {
             case REMOVE_PREFERENCE:
                 this.preferenceService.removePreference((String) resource[0]);
                 this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
+                break;
+            case EXPORT_PREFERENCES:
+                boolean result = this.preferenceService.exportPreferences((String) resource[0], (File) resource[1]);
+                this.mainFrame.displayMessagePrompt(result ? PREFERENCES_EXPORT_FINISHED : PREFERENCES_EXPORT_ERROR, (result) ? 1 : 0);
                 break;
             case START:
                 this.password = (String) resource[0];
