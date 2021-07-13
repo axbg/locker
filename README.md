@@ -28,4 +28,4 @@ added along with your existing preferences.
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum:**
-9E9F3BB1B1DA9FDF403F7BE1844F166AFB7AE9204DF67510FC299A65A5620D6F
+BD36A8778C777873F62D5336B6569566E607C0EC2CCF4005C38B7971A58C84A9

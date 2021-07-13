@@ -5,11 +5,12 @@ import locker.event.OperationMode;
 public class Preference {
     private static final String SEPARATOR = "\r\n";
 
-    private final String name;
     private final String source;
     private final String destination;
     private final String password;
     private final OperationMode operationMode;
+
+    private String name;
 
     public Preference(String name, String source, String destination, String password, OperationMode operationMode) {
         this.name = name;
@@ -31,6 +32,10 @@ public class Preference {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getSource() {
