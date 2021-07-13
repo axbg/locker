@@ -198,11 +198,11 @@ public class MainFrame extends JFrame {
                                                 .addComponent(this.destinationButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)))
                                 .addContainerGap(45, Short.MAX_VALUE))
                         .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
-                                .addContainerGap(320, Short.MAX_VALUE)
+                                .addContainerGap(171, Short.MAX_VALUE)
                                 .addComponent(this.importPreferencesButton)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(this.exportPreferencesButton)
-                                .addGap(16, 16, 16))
+                                .addGap(171, 171, 171))
         );
         contentPaneLayout.setVerticalGroup(
                 contentPaneLayout.createParallelGroup()
