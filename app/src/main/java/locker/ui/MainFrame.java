@@ -39,6 +39,7 @@ public class MainFrame extends JFrame {
     private final JButton savePreferenceButton;
     private final JButton startOperationButton;
     private final JButton exportPreferencesButton;
+    private final JButton importPreferencesButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     private final JFileChooser sourceChooser;
     private final JFileChooser destinationChooser;
@@ -69,6 +70,7 @@ public class MainFrame extends JFrame {
         this.savePreferenceButton = new JButton();
         this.startOperationButton = new JButton();
 
+        this.importPreferencesButton = new JButton();
         this.exportPreferencesButton = new JButton();
         this.exportPreferencesChooser = new JFileChooser();
 
@@ -158,6 +160,10 @@ public class MainFrame extends JFrame {
         this.exportPreferencesButton.setText("Export Preferences");
         this.exportPreferencesButton.addActionListener(e -> exportPreferencesButtonActionPerformed());
 
+        //---- importPreferencesButton ----
+        this.importPreferencesButton.setText("Import Preferences");
+        this.importPreferencesButton.addActionListener(e -> importPreferencesButtonActionPerformed());
+
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
@@ -192,7 +198,9 @@ public class MainFrame extends JFrame {
                                                 .addComponent(this.destinationButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)))
                                 .addContainerGap(45, Short.MAX_VALUE))
                         .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
-                                .addContainerGap(485, Short.MAX_VALUE)
+                                .addContainerGap(320, Short.MAX_VALUE)
+                                .addComponent(this.importPreferencesButton)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(this.exportPreferencesButton)
                                 .addGap(16, 16, 16))
         );
@@ -229,7 +237,9 @@ public class MainFrame extends JFrame {
                                 .addGap(30, 30, 30)
                                 .addComponent(this.startOperationButton, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
-                                .addComponent(this.exportPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+                                .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(this.exportPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(this.importPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE))
                                 .addContainerGap())
         );
         pack();
@@ -293,9 +303,41 @@ public class MainFrame extends JFrame {
         this.eventHandler.handle(UIEvent.REMOVE_PREFERENCE, this.loadPreferenceComboBox.getSelectedItem());
     }
 
+    private void importPreferencesButtonActionPerformed() {
+        this.exportPreferencesChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        if (exportPreferencesChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            String password = requestPreferencePassword("Insert the password that will be used to decrypt the imported preferences");
+
+            if (password == null) {
+                return;
+            }
+
+            this.eventHandler.handle(UIEvent.IMPORT_PREFERENCES, password, exportPreferencesChooser.getSelectedFile());
+        }
+    }
+
     private void exportPreferencesButtonActionPerformed() {
+        if (JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to export your preferences?",
+                "Exporting preferences",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != OK_OPTION) {
+            return;
+        }
+
+        String password = requestPreferencePassword("Insert a new password that will be used to encrypt the exported preferences");
+        if (password == null) {
+            return;
+        }
+
+        this.exportPreferencesChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (exportPreferencesChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            this.eventHandler.handle(UIEvent.EXPORT_PREFERENCES, password, exportPreferencesChooser.getSelectedFile());
+        }
+    }
+
+    private String requestPreferencePassword(String message) {
         JPasswordField preferencesPassword = new JPasswordField();
-        preferencesPassword.setToolTipText("Insert a new password that will be used to encrypt the exported preferences");
+        preferencesPassword.setToolTipText(message);
         preferencesPassword.addHierarchyListener(e -> {
             if (e.getComponent().isShowing() && (e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0)
                 SwingUtilities.invokeLater(e.getComponent()::requestFocusInWindow);
@@ -306,19 +348,17 @@ public class MainFrame extends JFrame {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (passwordInserted != OK_OPTION) {
-            return;
+            return null;
         }
 
         String password = new String(preferencesPassword.getPassword());
 
         if (password.isBlank() || password.length() < 7) {
             this.displayMessagePrompt("The password should have more than 6 characters", ERROR_MESSAGE);
-            return;
+            return null;
         }
 
-        if (exportPreferencesChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            this.eventHandler.handle(UIEvent.EXPORT_PREFERENCES, password, exportPreferencesChooser.getSelectedFile());
-        }
+        return password;
     }
 
     public void setPreferences(List<String> preferences, boolean selectLast) {

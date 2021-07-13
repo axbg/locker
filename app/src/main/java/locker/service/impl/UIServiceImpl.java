@@ -21,6 +21,8 @@ import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 public class UIServiceImpl implements UIService {
     private static final String SOURCE_FILE_MISSING = "Source file was not selected!";
     private static final String DESTINATION_FILE_MISSING = "Destination file was not selected";
+    private static final String PREFERENCES_IMPORT_FINISHED = "The preferences were imported!";
+    private static final String PREFERENCES_IMPORT_ERROR = "An error occurred during preferences importing!";
     private static final String PREFERENCES_EXPORT_FINISHED = "The preferences were exported!";
     private static final String PREFERENCES_EXPORT_ERROR = "An error occurred during preferences exporting!";
     private static final String ERROR_DURING_KEY_INIT = "Error during key initialization";
@@ -75,9 +77,18 @@ public class UIServiceImpl implements UIService {
                 this.preferenceService.removePreference((String) resource[0]);
                 this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
                 break;
+            case IMPORT_PREFERENCES:
+                boolean importResult = this.preferenceService.importPreferences((String) resource[0], (File) resource[1]);
+
+                if (importResult) {
+                    this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
+                }
+
+                this.mainFrame.displayMessagePrompt(importResult ? PREFERENCES_IMPORT_FINISHED : PREFERENCES_IMPORT_ERROR, (importResult) ? 1 : 0);
+                break;
             case EXPORT_PREFERENCES:
-                boolean result = this.preferenceService.exportPreferences((String) resource[0], (File) resource[1]);
-                this.mainFrame.displayMessagePrompt(result ? PREFERENCES_EXPORT_FINISHED : PREFERENCES_EXPORT_ERROR, (result) ? 1 : 0);
+                boolean exportResult = this.preferenceService.exportPreferences((String) resource[0], (File) resource[1]);
+                this.mainFrame.displayMessagePrompt(exportResult ? PREFERENCES_EXPORT_FINISHED : PREFERENCES_EXPORT_ERROR, (exportResult) ? 1 : 0);
                 break;
             case START:
                 this.password = (String) resource[0];

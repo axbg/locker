@@ -14,5 +14,7 @@ public interface PreferenceService {
 
     void removePreference(String name);
 
+    boolean importPreferences(String password, File file);
+
     boolean exportPreferences(String password, File file);
 }

@@ -17,12 +17,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PreferenceServiceImpl implements PreferenceService {
     private static final String PREFERENCE_FILE_LOCATION = ".locker";
     private static final String PREFERENCE_FILE_BACKUP_PASSWORD = "no-localhost-name";
-    private static final String EXPORTED_PREFERENCES_FILE_NAME = "/locker_exported_preferences.bin";
+    private static final String EXPORTED_PREFERENCES_FILE_NAME = "locker_exported_preferences.bin";
 
     private final Path lockerHomePath;
     private final CryptoService cryptoService;
@@ -42,7 +43,7 @@ public class PreferenceServiceImpl implements PreferenceService {
 
         this.preferenceFilePassword = password;
 
-        this.loadAvailablePreferences();
+        this.loadPreferencesFromDisk(this.preferenceFilePassword, this.lockerHomePath, false);
     }
 
     @Override
@@ -71,48 +72,55 @@ public class PreferenceServiceImpl implements PreferenceService {
 
     @Override
     public void removePreference(String name) {
-        this.cryptoService.initCipher(this.preferenceFilePassword, OperationMode.ENCRYPT);
-        byte[] content = this.preferences.values().stream()
+        Map<String, Preference> filteredPreferences = this.preferences.values().stream()
                 .filter(preference -> !name.equals(preference.getName()))
-                .map(preference -> this.cryptoService.doNameOperation(preference.toString()) + "\n")
-                .reduce("", (result, preference) -> result + preference)
-                .getBytes();
+                .collect(Collectors.toMap(Preference::getName, preference -> preference));
 
-        this.saveToDisk(content, this.lockerHomePath);
+        this.savePreferencesToDisk(filteredPreferences, this.preferenceFilePassword, this.lockerHomePath);
         this.preferences.remove(name);
     }
 
     @Override
-    public boolean exportPreferences(String password, File file) {
-        if (!file.exists() || !file.isDirectory()) {
-            return false;
-        }
-
-        this.cryptoService.initCipher(password, OperationMode.ENCRYPT);
-        byte[] content = this.preferences.values().stream()
-                .map(preference -> this.cryptoService.doNameOperation(preference.toString()) + "\n")
-                .reduce("", (result, preference) -> result + preference)
-                .getBytes();
-
-        saveToDisk(content, Path.of(file.getAbsolutePath() + EXPORTED_PREFERENCES_FILE_NAME));
+    public boolean importPreferences(String password, File file) {
+        this.loadPreferencesFromDisk(this.preferenceFilePassword, Path.of(file.getAbsolutePath()), true);
         return true;
     }
 
-    private void loadAvailablePreferences() {
-        this.cryptoService.initCipher(this.preferenceFilePassword, OperationMode.DECRYPT);
+    @Override
+    public boolean exportPreferences(String password, File file) {
+        this.savePreferencesToDisk(this.preferences, this.preferenceFilePassword, Path.of(file.getAbsolutePath(), EXPORTED_PREFERENCES_FILE_NAME));
+        return true;
+    }
 
-        if (this.lockerHomePath.toFile().exists()) {
+    private void loadPreferencesFromDisk(String password, Path path, boolean save) {
+        this.cryptoService.initCipher(password, OperationMode.DECRYPT);
+
+        if (path.toFile().exists()) {
             try {
-                for (String line : Files.readAllLines(lockerHomePath)) {
+                for (String line : Files.readAllLines(path)) {
                     String decryptedLine = this.cryptoService.doNameOperation(line);
-                    this.preferences.put(decryptedLine.split("\r\n")[0], new Preference(decryptedLine));
+                    Preference preference = new Preference(decryptedLine);
+
+                    if (save) {
+                        this.savePreference(preference);
+                        this.cryptoService.initCipher(password, OperationMode.DECRYPT);
+                    } else {
+                        this.preferences.put(preference.getName(), preference);
+                    }
                 }
             } catch (IOException ignored) {
             }
         }
     }
 
-    private void saveToDisk(byte[] content, Path path) {
+    private void savePreferencesToDisk(Map<String, Preference> preferences, String password, Path path) {
+        this.cryptoService.initCipher(password, OperationMode.ENCRYPT);
+
+        byte[] content = preferences.values().stream()
+                .map(preference -> this.cryptoService.doNameOperation(preference.toString()) + "\n")
+                .reduce("", (result, preference) -> result + preference)
+                .getBytes();
+
         try {
             Files.write(path, content);
         } catch (IOException ignored) {
