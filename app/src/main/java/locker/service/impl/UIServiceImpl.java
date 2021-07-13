@@ -78,7 +78,7 @@ public class UIServiceImpl implements UIService {
                 this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
                 break;
             case IMPORT_PREFERENCES:
-                boolean importResult = this.preferenceService.importPreferences((String) resource[0], (File) resource[1]);
+                boolean importResult = this.preferenceService.importPreferences((String) resource[0], (File) resource[1], (String) resource[2]);
 
                 if (importResult) {
                     this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);

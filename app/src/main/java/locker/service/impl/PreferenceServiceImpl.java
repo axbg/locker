@@ -43,7 +43,7 @@ public class PreferenceServiceImpl implements PreferenceService {
 
         this.preferenceFilePassword = password;
 
-        this.loadPreferencesFromDisk(this.preferenceFilePassword, this.lockerHomePath, false);
+        this.loadPreferencesFromDisk(this.preferenceFilePassword, this.lockerHomePath, false, null);
     }
 
     @Override
@@ -81,8 +81,9 @@ public class PreferenceServiceImpl implements PreferenceService {
     }
 
     @Override
-    public boolean importPreferences(String password, File file) {
-        this.loadPreferencesFromDisk(this.preferenceFilePassword, Path.of(file.getAbsolutePath()), true);
+    public boolean importPreferences(String password, File file, String prefix) {
+        prefix = (prefix != null && !prefix.isBlank()) ? (" - " + prefix) : "";
+        this.loadPreferencesFromDisk(this.preferenceFilePassword, Path.of(file.getAbsolutePath()), true, prefix);
         return true;
     }
 
@@ -92,7 +93,7 @@ public class PreferenceServiceImpl implements PreferenceService {
         return true;
     }
 
-    private void loadPreferencesFromDisk(String password, Path path, boolean save) {
+    private void loadPreferencesFromDisk(String password, Path path, boolean save, String prefix) {
         this.cryptoService.initCipher(password, OperationMode.DECRYPT);
 
         if (path.toFile().exists()) {
@@ -102,6 +103,7 @@ public class PreferenceServiceImpl implements PreferenceService {
                     Preference preference = new Preference(decryptedLine);
 
                     if (save) {
+                        preference.setName(preference.getName() + prefix);
                         this.savePreference(preference);
                         this.cryptoService.initCipher(password, OperationMode.DECRYPT);
                     } else {

@@ -254,15 +254,11 @@ public class MainFrame extends JFrame {
     }
 
     private void savePreferenceButtonActionPerformed() {
-        String name = (String) JOptionPane.showInputDialog(
-                this,
-                "Insert a name for the new preference",
-                "Save preference",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                null,
-                ""
-        );
+        String name = requestStringInput("Insert a name for the new preference", "Save preference", 3);
+
+        if (name == null) {
+            return;
+        }
 
         this.eventHandler.handle(UIEvent.SAVE_PREFERENCE, new String(this.passwordField.getPassword()), name);
     }
@@ -312,7 +308,15 @@ public class MainFrame extends JFrame {
                 return;
             }
 
-            this.eventHandler.handle(UIEvent.IMPORT_PREFERENCES, password, exportPreferencesChooser.getSelectedFile());
+            String postfix = requestStringInput("What prefix would you like to use for the imported preferences?\n" +
+                            "If no prefix is used, existing preferences with the same name will be overwritten",
+                    "Preferences postfix", 0);
+
+            if (postfix == null) {
+                return;
+            }
+
+            this.eventHandler.handle(UIEvent.IMPORT_PREFERENCES, password, exportPreferencesChooser.getSelectedFile(), postfix);
         }
     }
 
@@ -335,6 +339,17 @@ public class MainFrame extends JFrame {
         }
     }
 
+    private String requestStringInput(String message, String title, int limit) {
+        String input = (String) JOptionPane.showInputDialog(this, message, title, JOptionPane.PLAIN_MESSAGE, null, null, "");
+
+        if (input != null && input.length() < limit) {
+            this.displayMessagePrompt("Input should have at least " + limit + " + characters", ERROR_MESSAGE);
+            return null;
+        }
+
+        return input;
+    }
+
     private String requestPreferencePassword(String message) {
         JPasswordField preferencesPassword = new JPasswordField();
         preferencesPassword.setToolTipText(message);
@@ -343,7 +358,7 @@ public class MainFrame extends JFrame {
                 SwingUtilities.invokeLater(e.getComponent()::requestFocusInWindow);
         });
 
-        int passwordInserted = JOptionPane.showConfirmDialog(null, preferencesPassword,
+        int passwordInserted = JOptionPane.showConfirmDialog(this, preferencesPassword,
                 "New preferences password",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
