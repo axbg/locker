@@ -13,9 +13,19 @@ Then, the preference can be applied afterwards, by selecting it in the *Load pre
 
 ![Applied preference](./.images/2-applied-preferences.png)
 
+If you would like to move your preferences to another PC or share it with somebody else, you can use the
+**Export Preferences/Import Preferences** feature.
+
+Your preferences will be encrypted with a password of choice and will be exported to a selected location.
+
+The import process is similar: select the encrypted preferences file and provide the right password, and they will be
+added along with your existing preferences.
+
+![Share preferences](./.images/4-share-preferences.png)
+
 #
 
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum:**
-9CF6245C61FE1D3EED74732A12C26A4A215B096FE2B583CF7742EFF51F680603
+9E9F3BB1B1DA9FDF403F7BE1844F166AFB7AE9204DF67510FC299A65A5620D6F
