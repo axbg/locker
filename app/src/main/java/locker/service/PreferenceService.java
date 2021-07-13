@@ -2,6 +2,7 @@ package locker.service;
 
 import locker.object.Preference;
 
+import java.io.File;
 import java.util.List;
 
 public interface PreferenceService {
@@ -12,4 +13,8 @@ public interface PreferenceService {
     void savePreference(Preference preference);
 
     void removePreference(String name);
+
+    boolean importPreferences(String password, File file);
+
+    boolean exportPreferences(String password, File file);
 }

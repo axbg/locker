@@ -18,4 +18,4 @@ Then, the preference can be applied afterwards, by selecting it in the *Load pre
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum:**
-A471D4DB866387E989D67EA1C781031F08A852B0DA642A2A2FCB3B68AE703962
+9CF6245C61FE1D3EED74732A12C26A4A215B096FE2B583CF7742EFF51F680603
