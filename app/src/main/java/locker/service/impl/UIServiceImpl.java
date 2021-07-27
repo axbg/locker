@@ -3,10 +3,7 @@ package locker.service.impl;
 import locker.event.OperationMode;
 import locker.event.UIEvent;
 import locker.object.Preference;
-import locker.service.CryptoService;
-import locker.service.FileService;
-import locker.service.PreferenceService;
-import locker.service.UIService;
+import locker.service.*;
 import locker.ui.MainFrame;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +28,7 @@ public class UIServiceImpl implements UIService {
     private final FileService fileService;
     private final CryptoService cryptoService;
     private final PreferenceService preferenceService;
+    private final PasswordService passwordService;
 
     private MainFrame mainFrame;
 
@@ -39,10 +37,12 @@ public class UIServiceImpl implements UIService {
     private OperationMode operationMode = OperationMode.ENCRYPT;
     private String password;
 
-    public UIServiceImpl(FileService fileService, CryptoService cryptoService, PreferenceService preferenceService) {
+    public UIServiceImpl(FileService fileService, CryptoService cryptoService, PreferenceService preferenceService,
+                         PasswordService passwordService) {
         this.fileService = fileService;
         this.cryptoService = cryptoService;
         this.preferenceService = preferenceService;
+        this.passwordService = passwordService;
     }
 
     @Override
@@ -63,6 +63,10 @@ public class UIServiceImpl implements UIService {
                 break;
             case OPERATION_MODE_SELECTED:
                 this.operationMode = (OperationMode) resource[0];
+                break;
+            case GENERATE_PASSWORD:
+                String password = this.passwordService.generateStrongPassword();
+                this.mainFrame.setPassword(password);
                 break;
             case SAVE_PREFERENCE:
                 this.password = (String) resource[0];

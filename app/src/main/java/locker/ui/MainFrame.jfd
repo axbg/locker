@@ -7,8 +7,8 @@ new FormModel {
 			"JavaCodeGenerator.memberVariableThis": true
 		}
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq t {space :::x, comp startOperationButton:::::x, space :::x}, seq l {space :p:29:p, par l {seq l {comp sourceLocationField:::p:482:p, space u:::p, comp sourceButton:::p:84:p}, comp operationLabel::l:p::p, comp savePreferenceButton::l:p:128:p, comp passwordLabel::l:p::p, comp destinationLabel::l:p::p, comp sourceLabel::l:p::p, seq l {comp loadPreferenceLabel:::p::p, space s:::p, comp loadPreferenceComboBox:::p:364:p, space u:::p, comp removePreferenceButton:::p:84:p}, seq l {comp passwordField:::p:177:p, space :::p, comp showPasswordButton:::p::p}, comp operationComboBox::l:p:185:p, seq l {comp destinationLocationField:::p:482:p, space u:::p, comp destinationButton:::p:84:p}}, space ::46:x}, seq t {space ::153:x, comp importPreferencesButton:::p::p, space :::p, comp exportPreferencesButton:::p::p, space :p:171:p}}"
-			"$verticalGroup": "par l {seq t {space :p:23:p, par b {comp removePreferenceButton::b:p:34:p, comp loadPreferenceLabel::b:p::p, comp loadPreferenceComboBox::b:p:34:p}, space :p:37:p, comp sourceLabel:::p::p, space :::p, par b {comp sourceLocationField::b:p:34:p, comp sourceButton::b:p:34:p}, space u:::p, comp destinationLabel:::p::p, space :::p, par b {comp destinationButton::b:p:34:p, comp destinationLocationField::b:p:34:p}, space :p:13:p, comp passwordLabel:::p::p, space :::p, par l {comp passwordField:::p:32:p, comp showPasswordButton:::p:34:p}, space :p:12:p, comp operationLabel:::p::p, space :::p, comp operationComboBox:::p:33:p, space :::p, comp savePreferenceButton:::p:39:p, space :p:30:p, comp startOperationButton:::p:50:p, space ::15:x, par b {comp exportPreferencesButton::b:p:24:p, comp importPreferencesButton::b:p:24:p}, space :::p}}"
+			"$horizontalGroup": "par l {seq t {space :::x, comp startOperationButton:::::x, space :::x}, seq l {space :p:29:p, par l {seq l {comp sourceLocationField:::p:482:p, space u:::p, comp sourceButton:::p:84:p}, comp operationLabel::l:p::p, comp savePreferenceButton::l:p:128:p, comp passwordLabel::l:p::p, comp destinationLabel::l:p::p, comp sourceLabel::l:p::p, seq l {comp loadPreferenceLabel:::p::p, space s:::p, comp loadPreferenceComboBox:::p:364:p, space u:::p, comp removePreferenceButton:::p:84:p}, seq l {comp passwordField:::p:177:p, space :::p, comp showPasswordButton:::p:60:p, space :::p, comp generatePasswordButton:::p::p}, comp operationComboBox::l:p:185:p, seq l {comp destinationLocationField:::p:482:p, space u:::p, comp destinationButton:::p:84:p}}, space ::45:x}, seq t {space ::165:x, comp importPreferencesButton:::p::p, space u:::p, comp exportPreferencesButton:::p::p, space :p:171:p}}"
+			"$verticalGroup": "par l {seq t {space :p:23:p, par b {comp removePreferenceButton::b:p:34:p, comp loadPreferenceLabel::b:p::p, comp loadPreferenceComboBox::b:p:34:p}, space :p:37:p, comp sourceLabel:::p::p, space :::p, par b {comp sourceLocationField::b:p:34:p, comp sourceButton::b:p:34:p}, space u:::p, comp destinationLabel:::p::p, space :::p, par b {comp destinationButton::b:p:34:p, comp destinationLocationField::b:p:34:p}, space :p:13:p, comp passwordLabel:::p::p, space :::p, par l {comp passwordField:::p:32:p, par b {comp showPasswordButton::b:p:34:p, comp generatePasswordButton::b:p:34:p}}, space :p:12:p, comp operationLabel:::p::p, space :::p, comp operationComboBox:::p:33:p, space :::p, comp savePreferenceButton:::p:39:p, space :p:30:p, comp startOperationButton:::p:50:p, space ::17:x, par b {comp exportPreferencesButton::b:p:24:p, comp importPreferencesButton::b:p:24:p}, space :::p}}"
 		} ) {
 			name: "this"
 			"title": "Locker"
@@ -179,11 +179,23 @@ new FormModel {
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "showPasswordButton"
 				"text": "Show"
+				"toolTipText": "Take a glimpse at the current password"
 				auxiliary() {
 					"JavaCodeGenerator.variableModifiers": 18
 					"JavaCodeGenerator.customCreate": true
 				}
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "showPasswordButtonActionPerformed", false ) )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "showPasswordButtonMousePressed", false ) )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseReleased", "showPasswordButtonMouseReleased", false ) )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "generatePasswordButton"
+				"text": "Generate"
+				"toolTipText": "Generate a hard-to-guess password"
+				auxiliary() {
+					"JavaCodeGenerator.customCreate": true
+					"JavaCodeGenerator.variableModifiers": 18
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "generatePasswordButtonActionPerformed", false ) )
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
