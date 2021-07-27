@@ -12,6 +12,8 @@ import locker.object.Preference;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.HierarchyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class MainFrame extends JFrame {
     private static final String PREFERENCE_PLACEHOLDER = "---------";
     private static final OperationMode[] OPERATION_MODES = new OperationMode[]{OperationMode.ENCRYPT, OperationMode.DECRYPT};
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    // Generated using JFormDesigner Evaluation license - unknown
+    // Generated using JFormDesigner Evaluation license - Alex Bisag
     private final JLabel loadPreferenceLabel;
     private final JComboBox<String> loadPreferenceComboBox;
     private final JLabel sourceLabel;
@@ -40,10 +42,13 @@ public class MainFrame extends JFrame {
     private final JButton startOperationButton;
     private final JButton exportPreferencesButton;
     private final JButton importPreferencesButton;
+    private final JButton showPasswordButton;
+    private final JButton generatePasswordButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     private final JFileChooser sourceChooser;
     private final JFileChooser destinationChooser;
     private final JFileChooser exportPreferencesChooser;
+
     private UIEventHandler eventHandler;
 
     public MainFrame() {
@@ -63,6 +68,8 @@ public class MainFrame extends JFrame {
 
         this.passwordLabel = new JLabel();
         this.passwordField = new JPasswordField();
+        this.showPasswordButton = new JButton();
+        this.generatePasswordButton = new JButton();
 
         this.operationLabel = new JLabel();
         this.operationComboBox = new JComboBox<>(OPERATION_MODES);
@@ -81,9 +88,10 @@ public class MainFrame extends JFrame {
         this.eventHandler = eventHandler;
     }
 
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        // Generated using JFormDesigner Evaluation license - unknown
+        // Generated using JFormDesigner Evaluation license - Alex Bisag
         createUIComponents();
 
 
@@ -164,6 +172,26 @@ public class MainFrame extends JFrame {
         this.importPreferencesButton.setText("Import Preferences");
         this.importPreferencesButton.addActionListener(e -> importPreferencesButtonActionPerformed());
 
+        //---- showPasswordButton ----
+        this.showPasswordButton.setText("Show");
+        this.showPasswordButton.setToolTipText("Take a glimpse at the current password");
+        this.showPasswordButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                showPasswordButtonMousePressed();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                showPasswordButtonMouseReleased();
+            }
+        });
+
+        //---- generatePasswordButton ----
+        this.generatePasswordButton.setText("Generate");
+        this.generatePasswordButton.setToolTipText("Generate a hard-to-guess password");
+        this.generatePasswordButton.addActionListener(e -> generatePasswordButtonActionPerformed());
+
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
@@ -190,7 +218,12 @@ public class MainFrame extends JFrame {
                                                 .addComponent(this.loadPreferenceComboBox, GroupLayout.PREFERRED_SIZE, 364, GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                                 .addComponent(this.removePreferenceButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE))
-                                        .addComponent(this.passwordField, GroupLayout.PREFERRED_SIZE, 177, GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                                .addComponent(this.passwordField, GroupLayout.PREFERRED_SIZE, 177, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(this.showPasswordButton, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(this.generatePasswordButton))
                                         .addComponent(this.operationComboBox, GroupLayout.PREFERRED_SIZE, 185, GroupLayout.PREFERRED_SIZE)
                                         .addGroup(contentPaneLayout.createSequentialGroup()
                                                 .addComponent(this.destinationLocationField, GroupLayout.PREFERRED_SIZE, 482, GroupLayout.PREFERRED_SIZE)
@@ -198,9 +231,9 @@ public class MainFrame extends JFrame {
                                                 .addComponent(this.destinationButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)))
                                 .addContainerGap(45, Short.MAX_VALUE))
                         .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
-                                .addContainerGap(171, Short.MAX_VALUE)
+                                .addContainerGap(165, Short.MAX_VALUE)
                                 .addComponent(this.importPreferencesButton)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(this.exportPreferencesButton)
                                 .addGap(171, 171, 171))
         );
@@ -227,7 +260,11 @@ public class MainFrame extends JFrame {
                                 .addGap(13, 13, 13)
                                 .addComponent(this.passwordLabel)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(this.passwordField, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                                .addGroup(contentPaneLayout.createParallelGroup()
+                                        .addComponent(this.passwordField, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                .addComponent(this.showPasswordButton, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(this.generatePasswordButton, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)))
                                 .addGap(12, 12, 12)
                                 .addComponent(this.operationLabel)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
@@ -236,7 +273,7 @@ public class MainFrame extends JFrame {
                                 .addComponent(this.savePreferenceButton, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
                                 .addGap(30, 30, 30)
                                 .addComponent(this.startOperationButton, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                                 .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(this.exportPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(this.importPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE))
@@ -297,6 +334,20 @@ public class MainFrame extends JFrame {
 
     private void removePreferenceButtonActionPerformed() {
         this.eventHandler.handle(UIEvent.REMOVE_PREFERENCE, this.loadPreferenceComboBox.getSelectedItem());
+    }
+
+    private void showPasswordButtonMousePressed() {
+        this.passwordField.setEchoChar((char) 0);
+        this.showPasswordButton.setText("Hide");
+    }
+
+    private void showPasswordButtonMouseReleased() {
+        this.passwordField.setEchoChar('*');
+        this.showPasswordButton.setText("Show");
+    }
+
+    private void generatePasswordButtonActionPerformed() {
+        this.eventHandler.handle(UIEvent.GENERATE_PASSWORD);
     }
 
     private void importPreferencesButtonActionPerformed() {
@@ -398,6 +449,10 @@ public class MainFrame extends JFrame {
     private void togglePreferenceControls(boolean state) {
         this.loadPreferenceComboBox.setEnabled(state);
         this.removePreferenceButton.setEnabled(state);
+    }
+
+    public void setPassword(String password) {
+        this.passwordField.setText(password);
     }
 
     public void displayPreference(Preference preference) {

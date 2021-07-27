@@ -21,11 +21,16 @@ Your preferences will be encrypted with a password of choice and will be exporte
 The import process is similar: select the encrypted preferences file and provide the right password, and they will be
 added along with your existing preferences.
 
-![Share preferences](./.images/4-share-preferences.png)
+![Share preferences](./.images/3-share-preferences.png)
+
+Additionally, if you feel like your password minting skills can be improved, you can rely on the embedded password
+generator that will create a complex, hard-to-break password.
+
+![Password generator](./.images/4-password-generator.png)
 
 #
 
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum:**
-BD36A8778C777873F62D5336B6569566E607C0EC2CCF4005C38B7971A58C84A9
+505761689783BF8467856214BF3CBE226053F139E42A43CA3103F10B9C5D601A

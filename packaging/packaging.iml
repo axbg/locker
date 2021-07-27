@@ -35,5 +35,6 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-core:5.3.8" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jcl:5.3.8" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.28" level="project" />
+    <orderEntry type="library" name="Maven: org.passay:passay:1.6.1" level="project" />
   </component>
 </module>
