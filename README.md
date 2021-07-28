@@ -9,21 +9,23 @@ value for each field is provided.
 
 ![Preference preview](./.images/1-preferences.png)
 
-Then, the preference can be applied afterwards, by selecting it in the *Load preference* dropdown.
+Then, the preference can be applied by selecting it in the *Load preference* dropdown.
 
 ![Applied preference](./.images/2-applied-preferences.png)
 
-If you would like to move your preferences to another PC or share it with somebody else, you can use the
+If you would like to move your preferences to another PC or share them with somebody else, you can use the
 **Export Preferences/Import Preferences** feature.
 
 Your preferences will be encrypted with a password of choice and will be exported to a selected location.
 
-The import process is similar: select the encrypted preferences file and provide the right password, and they will be
-added along with your existing preferences.
+The import process is similar: select the encrypted preferences file, provide the right password and, optionally, an
+extension that will be appended after each imported name.
+
+The imported preferences will be added along with the existing ones, overwriting those that share the same name.
 
 ![Share preferences](./.images/3-share-preferences.png)
 
-Additionally, if you feel like your password minting skills can be improved, you can rely on the embedded password
+Additionally, if you feel like your password minting game is not that strong, you can rely on the embedded password
 generator that will create a complex, hard-to-break password.
 
 ![Password generator](./.images/4-password-generator.png)
