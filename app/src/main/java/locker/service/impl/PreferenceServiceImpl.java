@@ -1,6 +1,7 @@
 package locker.service.impl;
 
 import locker.event.OperationMode;
+import locker.exception.DecryptionException;
 import locker.object.Preference;
 import locker.service.CryptoService;
 import locker.service.PreferenceService;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class PreferenceServiceImpl implements PreferenceService {
+    private static final String PREFERENCES_IMPORT_ERROR = "An error occurred during preferences importing!";
+
     private static final String PREFERENCE_FILE_LOCATION = ".locker";
     private static final String PREFERENCE_FILE_BACKUP_PASSWORD = "no-localhost-name";
     private static final String EXPORTED_PREFERENCES_FILE_NAME = "locker_exported_preferences.bin";
@@ -42,7 +45,10 @@ public class PreferenceServiceImpl implements PreferenceService {
         }
 
         this.preferenceFilePassword = password;
+    }
 
+    @Override
+    public void loadInitialPreferences() throws DecryptionException {
         this.loadPreferencesFromDisk(this.preferenceFilePassword, this.lockerHomePath, false, null);
     }
 
@@ -81,25 +87,28 @@ public class PreferenceServiceImpl implements PreferenceService {
     }
 
     @Override
-    public boolean importPreferences(String password, File file, String prefix) {
+    public void importPreferences(String password, File file, String prefix) throws DecryptionException {
         prefix = (prefix != null && !prefix.isBlank()) ? (" - " + prefix) : "";
-        this.loadPreferencesFromDisk(this.preferenceFilePassword, Path.of(file.getAbsolutePath()), true, prefix);
-        return true;
+        this.loadPreferencesFromDisk(password, Path.of(file.getAbsolutePath()), true, prefix);
     }
 
     @Override
-    public boolean exportPreferences(String password, File file) {
-        this.savePreferencesToDisk(this.preferences, this.preferenceFilePassword, Path.of(file.getAbsolutePath(), EXPORTED_PREFERENCES_FILE_NAME));
-        return true;
+    public void exportPreferences(String password, File file) {
+        this.savePreferencesToDisk(this.preferences, password, Path.of(file.getAbsolutePath(), EXPORTED_PREFERENCES_FILE_NAME));
     }
 
-    private void loadPreferencesFromDisk(String password, Path path, boolean save, String prefix) {
+    private void loadPreferencesFromDisk(String password, Path path, boolean save, String prefix) throws DecryptionException {
         this.cryptoService.initCipher(password, OperationMode.DECRYPT);
 
         if (path.toFile().exists()) {
             try {
                 for (String line : Files.readAllLines(path)) {
                     String decryptedLine = this.cryptoService.doNameOperation(line);
+
+                    if (decryptedLine == null) {
+                        throw new DecryptionException(PREFERENCES_IMPORT_ERROR);
+                    }
+
                     Preference preference = new Preference(decryptedLine);
 
                     if (save) {
