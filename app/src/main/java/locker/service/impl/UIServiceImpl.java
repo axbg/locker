@@ -2,7 +2,7 @@ package locker.service.impl;
 
 import locker.event.OperationMode;
 import locker.event.UIEvent;
-import locker.exception.DecryptionException;
+import locker.exception.AppException;
 import locker.object.Preference;
 import locker.service.*;
 import locker.ui.MainFrame;
@@ -53,58 +53,58 @@ public class UIServiceImpl implements UIService {
         try {
             this.preferenceService.loadInitialPreferences();
             this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
-        } catch (DecryptionException ex) {
+        } catch (AppException ex) {
             this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
         }
     }
 
     private void handleUIEvent(UIEvent event, Object... resource) {
-        switch (event) {
-            case SOURCE_FILE_SELECTED:
-                this.sourceFile = (File) resource[0];
-                break;
-            case DESTINATION_FILE_SELECTED:
-                this.destinationFile = (File) resource[0];
-                break;
-            case OPERATION_MODE_SELECTED:
-                this.operationMode = (OperationMode) resource[0];
-                break;
-            case GENERATE_PASSWORD:
-                String password = this.passwordService.generateStrongPassword();
-                this.mainFrame.setPassword(password);
-                break;
-            case SAVE_PREFERENCE:
-                this.password = (String) resource[0];
-                this.preferenceService.savePreference(new Preference((String) resource[1], this.sourceFile.getAbsolutePath(),
-                        this.destinationFile.getAbsolutePath(), this.password, this.operationMode));
-                this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), true);
-                break;
-            case LOAD_PREFERENCE:
-                this.mainFrame.displayPreference(this.preferenceService.getPreference((String) resource[0]));
-                break;
-            case REMOVE_PREFERENCE:
-                this.preferenceService.removePreference((String) resource[0]);
-                this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
-                break;
-            case IMPORT_PREFERENCES:
-                try {
+        try {
+            switch (event) {
+                case SOURCE_FILE_SELECTED:
+                    this.sourceFile = (File) resource[0];
+                    break;
+                case DESTINATION_FILE_SELECTED:
+                    this.destinationFile = (File) resource[0];
+                    break;
+                case OPERATION_MODE_SELECTED:
+                    this.operationMode = (OperationMode) resource[0];
+                    break;
+                case GENERATE_PASSWORD:
+                    String password = this.passwordService.generateStrongPassword();
+                    this.mainFrame.setPassword(password);
+                    break;
+                case SAVE_PREFERENCE:
+                    this.password = (String) resource[0];
+                    this.preferenceService.savePreference(new Preference((String) resource[1], this.sourceFile.getAbsolutePath(),
+                            this.destinationFile.getAbsolutePath(), this.password, this.operationMode));
+                    this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), true);
+                    break;
+                case LOAD_PREFERENCE:
+                    this.mainFrame.displayPreference(this.preferenceService.getPreference((String) resource[0]));
+                    break;
+                case REMOVE_PREFERENCE:
+                    this.preferenceService.removePreference((String) resource[0]);
+                    this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
+                    break;
+                case IMPORT_PREFERENCES:
                     this.preferenceService.importPreferences((String) resource[0], (File) resource[1], (String) resource[2]);
                     this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
                     this.mainFrame.displayMessagePrompt(PREFERENCES_IMPORT_FINISHED, INFORMATION_MESSAGE);
-                } catch (DecryptionException ex) {
-                    this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
-                }
-
-                break;
-            case EXPORT_PREFERENCES:
-                this.preferenceService.exportPreferences((String) resource[0], (File) resource[1]);
-                this.mainFrame.displayMessagePrompt(PREFERENCES_EXPORT_FINISHED, INFORMATION_MESSAGE);
-                break;
-            case START:
-                this.password = (String) resource[0];
-                startOperation();
-            default:
-                break;
+                    break;
+                case EXPORT_PREFERENCES:
+                    this.preferenceService.exportPreferences((String) resource[0], (File) resource[1]);
+                    this.mainFrame.displayMessagePrompt(PREFERENCES_EXPORT_FINISHED, INFORMATION_MESSAGE);
+                    break;
+                case START:
+                    this.password = (String) resource[0];
+                    startOperation();
+                    break;
+                default:
+                    break;
+            }
+        } catch (AppException ex) {
+            this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
         }
     }
 
@@ -123,12 +123,17 @@ public class UIServiceImpl implements UIService {
                 currentFiles.add(name);
 
                 if (!this.fileService.versionAlreadyExisting(file, destinationFile, name)) {
-                    updated++;
-                    byte[] content = this.cryptoService.doContentOperation(file);
-                    if (!fileService.saveFile(destinationFile, name, content)) {
-                        this.mainFrame.displayMessagePrompt(ERROR_DURING_OPERATION + file.getName(), ERROR_MESSAGE);
+                    try {
+                        byte[] content = this.cryptoService.doContentOperation(file);
+                        if (!fileService.saveFile(destinationFile, name, content)) {
+                            throw new AppException(ERROR_DURING_OPERATION + file.getName());
+                        }
+                    } catch (AppException ex) {
+                        this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
                         break;
                     }
+
+                    updated++;
                 }
             }
 

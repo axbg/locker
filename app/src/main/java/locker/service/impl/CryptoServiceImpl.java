@@ -1,6 +1,7 @@
 package locker.service.impl;
 
 import locker.event.OperationMode;
+import locker.exception.AppException;
 import locker.service.CryptoService;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,8 @@ import java.util.Arrays;
 
 @Service
 public class CryptoServiceImpl implements CryptoService {
+    private static final int SHA256_SIZE = 32;
+
     private final byte[] iv;
     private final MessageDigest messageDigest;
     private final Cipher cipher;
@@ -53,11 +56,51 @@ public class CryptoServiceImpl implements CryptoService {
     }
 
     @Override
-    public byte[] doContentOperation(File file) {
+    public byte[] computeHash(byte[] content) {
+        return messageDigest.digest(content);
+    }
+
+    @Override
+    public byte[] doContentOperation(File file) throws AppException {
         try {
-            return cipher.doFinal(Files.readAllBytes(file.toPath()));
-        } catch (IOException | IllegalBlockSizeException | BadPaddingException ex) {
+            return this.doContentOperation(Files.readAllBytes(file.toPath()), file.getName());
+        } catch (IOException ex) {
             return null;
+        }
+    }
+
+    @Override
+    public byte[] doContentOperation(byte[] content, String filename) throws AppException {
+        try {
+            if (opMode == Cipher.ENCRYPT_MODE) {
+                byte[] fileHash = this.computeHash(content);
+                byte[] combined = new byte[fileHash.length + content.length];
+
+                System.arraycopy(fileHash, 0, combined, 0, fileHash.length);
+                System.arraycopy(content, 0, combined, fileHash.length, content.length);
+
+                return cipher.doFinal(combined);
+            } else {
+                byte[] decrypted = cipher.doFinal(content);
+
+                byte[] hash = new byte[SHA256_SIZE];
+                System.arraycopy(decrypted, 0, hash, 0, SHA256_SIZE);
+
+                content = new byte[decrypted.length - SHA256_SIZE];
+                System.arraycopy(decrypted, SHA256_SIZE, content, 0, decrypted.length - SHA256_SIZE);
+
+                byte[] computedHash = this.computeHash(content);
+                if (!Arrays.equals(hash, computedHash)) {
+                    throw new AppException(filename != null ? "File " + filename + " decryption failed: hashes mismatch"
+                            : "Content decryption failed - hashes mismatch");
+                }
+
+                return content;
+            }
+
+        } catch (IllegalBlockSizeException | BadPaddingException ex) {
+            throw new AppException(filename != null ? "File " + filename + " decryption failed: malformed"
+                    : "Content decryption failed - malformed");
         }
     }
 
