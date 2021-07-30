@@ -1,5 +1,6 @@
 package locker.service;
 
+import locker.exception.DecryptionException;
 import locker.object.Preference;
 
 import java.io.File;
@@ -10,11 +11,13 @@ public interface PreferenceService {
 
     Preference getPreference(String name);
 
+    void loadInitialPreferences() throws DecryptionException;
+
     void savePreference(Preference preference);
 
     void removePreference(String name);
 
-    boolean importPreferences(String password, File file, String postfix);
+    void importPreferences(String password, File file, String postfix) throws DecryptionException;
 
-    boolean exportPreferences(String password, File file);
+    void exportPreferences(String password, File file);
 }

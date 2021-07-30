@@ -2,6 +2,7 @@ package locker.service.impl;
 
 import locker.event.OperationMode;
 import locker.event.UIEvent;
+import locker.exception.DecryptionException;
 import locker.object.Preference;
 import locker.service.*;
 import locker.ui.MainFrame;
@@ -19,9 +20,7 @@ public class UIServiceImpl implements UIService {
     private static final String SOURCE_FILE_MISSING = "Source file was not selected!";
     private static final String DESTINATION_FILE_MISSING = "Destination file was not selected";
     private static final String PREFERENCES_IMPORT_FINISHED = "The preferences were imported!";
-    private static final String PREFERENCES_IMPORT_ERROR = "An error occurred during preferences importing!";
     private static final String PREFERENCES_EXPORT_FINISHED = "The preferences were exported!";
-    private static final String PREFERENCES_EXPORT_ERROR = "An error occurred during preferences exporting!";
     private static final String ERROR_DURING_KEY_INIT = "Error during key initialization";
     private static final String ERROR_DURING_OPERATION = "Error occurred during operation on ";
 
@@ -49,8 +48,14 @@ public class UIServiceImpl implements UIService {
     public void loadUI(MainFrame frame) {
         this.mainFrame = frame;
         this.mainFrame.setEventHandler(this::handleUIEvent);
-        this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
         this.mainFrame.setVisible(true);
+
+        try {
+            this.preferenceService.loadInitialPreferences();
+            this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
+        } catch (DecryptionException ex) {
+            this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
+        }
     }
 
     private void handleUIEvent(UIEvent event, Object... resource) {
@@ -82,17 +87,18 @@ public class UIServiceImpl implements UIService {
                 this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
                 break;
             case IMPORT_PREFERENCES:
-                boolean importResult = this.preferenceService.importPreferences((String) resource[0], (File) resource[1], (String) resource[2]);
-
-                if (importResult) {
+                try {
+                    this.preferenceService.importPreferences((String) resource[0], (File) resource[1], (String) resource[2]);
                     this.mainFrame.setPreferences(this.preferenceService.getPreferencesNames(), false);
+                    this.mainFrame.displayMessagePrompt(PREFERENCES_IMPORT_FINISHED, INFORMATION_MESSAGE);
+                } catch (DecryptionException ex) {
+                    this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
                 }
 
-                this.mainFrame.displayMessagePrompt(importResult ? PREFERENCES_IMPORT_FINISHED : PREFERENCES_IMPORT_ERROR, (importResult) ? 1 : 0);
                 break;
             case EXPORT_PREFERENCES:
-                boolean exportResult = this.preferenceService.exportPreferences((String) resource[0], (File) resource[1]);
-                this.mainFrame.displayMessagePrompt(exportResult ? PREFERENCES_EXPORT_FINISHED : PREFERENCES_EXPORT_ERROR, (exportResult) ? 1 : 0);
+                this.preferenceService.exportPreferences((String) resource[0], (File) resource[1]);
+                this.mainFrame.displayMessagePrompt(PREFERENCES_EXPORT_FINISHED, INFORMATION_MESSAGE);
                 break;
             case START:
                 this.password = (String) resource[0];
