@@ -1,7 +1,7 @@
 package locker.service.impl;
 
 import locker.event.OperationMode;
-import locker.exception.DecryptionException;
+import locker.exception.AppException;
 import locker.object.Preference;
 import locker.service.CryptoService;
 import locker.service.PreferenceService;
@@ -11,18 +11,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class PreferenceServiceImpl implements PreferenceService {
-    private static final String PREFERENCES_IMPORT_ERROR = "An error occurred during preferences importing!";
+    public static final String PREFERENCE_DECRYPTION_ERROR = "Error occurred during preferences decryption";
+    public static final String PREFERENCE_BAD_FILE_ERROR = "The imported file does not contain preferences";
 
     private static final String PREFERENCE_FILE_LOCATION = ".locker";
     private static final String PREFERENCE_FILE_BACKUP_PASSWORD = "no-localhost-name";
@@ -30,8 +29,8 @@ public class PreferenceServiceImpl implements PreferenceService {
 
     private final Path lockerHomePath;
     private final CryptoService cryptoService;
-    private final Map<String, Preference> preferences;
     private final String preferenceFilePassword;
+    private final Map<String, Preference> preferences;
 
     public PreferenceServiceImpl(CryptoService cryptoService) {
         this.lockerHomePath = Path.of(System.getProperty("user.home"), PREFERENCE_FILE_LOCATION);
@@ -48,7 +47,7 @@ public class PreferenceServiceImpl implements PreferenceService {
     }
 
     @Override
-    public void loadInitialPreferences() throws DecryptionException {
+    public void loadInitialPreferences() throws AppException {
         this.loadPreferencesFromDisk(this.preferenceFilePassword, this.lockerHomePath, false, null);
     }
 
@@ -65,11 +64,16 @@ public class PreferenceServiceImpl implements PreferenceService {
     @Override
     public void savePreference(Preference preference) {
         this.cryptoService.initCipher(this.preferenceFilePassword, OperationMode.ENCRYPT);
-        String encryptedPreference = this.cryptoService.doNameOperation(preference.toString()) + "\n";
+
+        String stringPreference = preference.toString();
+        String hash = new String(this.cryptoService.computeHash(stringPreference.getBytes()), StandardCharsets.ISO_8859_1);
+
+        String encryptedHash = this.cryptoService.doNameOperation(hash);
+        String encryptedPreference = this.cryptoService.doNameOperation(stringPreference);
+        byte[] content = (encryptedHash + "\n" + encryptedPreference + "\n").getBytes();
 
         try {
-            Files.write(this.lockerHomePath, encryptedPreference.getBytes(),
-                    this.lockerHomePath.toFile().exists() ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW);
+            Files.write(this.lockerHomePath, content, this.lockerHomePath.toFile().exists() ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW);
         } catch (IOException ignored) {
         }
 
@@ -87,7 +91,7 @@ public class PreferenceServiceImpl implements PreferenceService {
     }
 
     @Override
-    public void importPreferences(String password, File file, String prefix) throws DecryptionException {
+    public void importPreferences(String password, File file, String prefix) throws AppException {
         prefix = (prefix != null && !prefix.isBlank()) ? (" - " + prefix) : "";
         this.loadPreferencesFromDisk(password, Path.of(file.getAbsolutePath()), true, prefix);
     }
@@ -97,29 +101,51 @@ public class PreferenceServiceImpl implements PreferenceService {
         this.savePreferencesToDisk(this.preferences, password, Path.of(file.getAbsolutePath(), EXPORTED_PREFERENCES_FILE_NAME));
     }
 
-    private void loadPreferencesFromDisk(String password, Path path, boolean save, String prefix) throws DecryptionException {
+    private void loadPreferencesFromDisk(String password, Path path, boolean save, String prefix) throws AppException {
         this.cryptoService.initCipher(password, OperationMode.DECRYPT);
+
+        byte[] hash = null;
+        boolean readFirst = false;
 
         if (path.toFile().exists()) {
             try {
-                for (String line : Files.readAllLines(path)) {
+                List<String> lines = Files.readAllLines(path);
+
+                if (lines.isEmpty()) {
+                    throw new AppException(PREFERENCE_DECRYPTION_ERROR);
+                }
+
+                for (String line : lines) {
                     String decryptedLine = this.cryptoService.doNameOperation(line);
 
                     if (decryptedLine == null) {
-                        throw new DecryptionException(PREFERENCES_IMPORT_ERROR);
+                        throw new AppException(PREFERENCE_DECRYPTION_ERROR);
                     }
 
-                    Preference preference = new Preference(decryptedLine);
-
-                    if (save) {
-                        preference.setName(preference.getName() + prefix);
-                        this.savePreference(preference);
-                        this.cryptoService.initCipher(password, OperationMode.DECRYPT);
+                    if (!readFirst) {
+                        hash = decryptedLine.getBytes(StandardCharsets.ISO_8859_1);
                     } else {
-                        this.preferences.put(preference.getName(), preference);
+                        byte[] computedHash = this.cryptoService.computeHash(decryptedLine.getBytes());
+
+                        if (!Arrays.equals(hash, computedHash)) {
+                            throw new AppException(PREFERENCE_DECRYPTION_ERROR);
+                        }
+
+                        Preference preference = new Preference(decryptedLine);
+
+                        if (save) {
+                            preference.setName(preference.getName() + prefix);
+                            this.savePreference(preference);
+                            this.cryptoService.initCipher(password, OperationMode.DECRYPT);
+                        } else {
+                            this.preferences.put(preference.getName(), preference);
+                        }
                     }
+
+                    readFirst = !readFirst;
                 }
             } catch (IOException ignored) {
+                throw new AppException(PREFERENCE_BAD_FILE_ERROR);
             }
         }
     }
@@ -128,10 +154,14 @@ public class PreferenceServiceImpl implements PreferenceService {
         this.cryptoService.initCipher(password, OperationMode.ENCRYPT);
 
         byte[] content = preferences.values().stream()
-                .map(preference -> this.cryptoService.doNameOperation(preference.toString()) + "\n")
+                .map(preference -> {
+                    byte[] hash = this.cryptoService.computeHash(preference.toString().getBytes());
+                    return this.cryptoService.doNameOperation(new String(hash, StandardCharsets.ISO_8859_1)) + "\n"
+                            + this.cryptoService.doNameOperation(preference.toString()) + "\n";
+
+                })
                 .reduce("", (result, preference) -> result + preference)
                 .getBytes();
-
         try {
             Files.write(path, content);
         } catch (IOException ignored) {
