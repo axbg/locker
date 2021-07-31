@@ -8,6 +8,7 @@ import locker.event.OperationMode;
 import locker.event.UIEvent;
 import locker.event.UIEventHandler;
 import locker.object.Preference;
+import org.springframework.util.ResourceUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,7 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
@@ -44,6 +46,7 @@ public class MainFrame extends JFrame {
     private final JButton importPreferencesButton;
     private final JButton showPasswordButton;
     private final JButton generatePasswordButton;
+    private final JButton refreshPreferenceButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     private final JFileChooser sourceChooser;
     private final JFileChooser destinationChooser;
@@ -54,6 +57,7 @@ public class MainFrame extends JFrame {
     public MainFrame() {
         this.loadPreferenceLabel = new JLabel();
         this.loadPreferenceComboBox = new JComboBox<>();
+        this.refreshPreferenceButton = new JButton(loadRefreshImageIcon());
         this.removePreferenceButton = new JButton();
 
         this.sourceLabel = new JLabel();
@@ -87,7 +91,6 @@ public class MainFrame extends JFrame {
     public void setEventHandler(UIEventHandler eventHandler) {
         this.eventHandler = eventHandler;
     }
-
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -180,7 +183,6 @@ public class MainFrame extends JFrame {
             public void mousePressed(MouseEvent e) {
                 showPasswordButtonMousePressed();
             }
-
             @Override
             public void mouseReleased(MouseEvent e) {
                 showPasswordButtonMouseReleased();
@@ -191,6 +193,9 @@ public class MainFrame extends JFrame {
         this.generatePasswordButton.setText("Generate");
         this.generatePasswordButton.setToolTipText("Generate a hard-to-guess password");
         this.generatePasswordButton.addActionListener(e -> generatePasswordButtonActionPerformed());
+
+        //---- refreshPreferenceButton ----
+        this.refreshPreferenceButton.addActionListener(e -> loadPreferenceComboBoxActionPerformed());
 
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
@@ -203,21 +208,11 @@ public class MainFrame extends JFrame {
                         .addGroup(contentPaneLayout.createSequentialGroup()
                                 .addGap(29, 29, 29)
                                 .addGroup(contentPaneLayout.createParallelGroup()
-                                        .addGroup(contentPaneLayout.createSequentialGroup()
-                                                .addComponent(this.sourceLocationField, GroupLayout.PREFERRED_SIZE, 482, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(this.sourceButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE))
                                         .addComponent(this.operationLabel)
                                         .addComponent(this.savePreferenceButton, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(this.passwordLabel)
                                         .addComponent(this.destinationLabel)
                                         .addComponent(this.sourceLabel)
-                                        .addGroup(contentPaneLayout.createSequentialGroup()
-                                                .addComponent(this.loadPreferenceLabel)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(this.loadPreferenceComboBox, GroupLayout.PREFERRED_SIZE, 364, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(this.removePreferenceButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(contentPaneLayout.createSequentialGroup()
                                                 .addComponent(this.passwordField, GroupLayout.PREFERRED_SIZE, 177, GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
@@ -226,24 +221,43 @@ public class MainFrame extends JFrame {
                                                 .addComponent(this.generatePasswordButton))
                                         .addComponent(this.operationComboBox, GroupLayout.PREFERRED_SIZE, 185, GroupLayout.PREFERRED_SIZE)
                                         .addGroup(contentPaneLayout.createSequentialGroup()
-                                                .addComponent(this.destinationLocationField, GroupLayout.PREFERRED_SIZE, 482, GroupLayout.PREFERRED_SIZE)
+                                                .addGroup(contentPaneLayout.createParallelGroup()
+                                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                                                .addComponent(this.sourceLocationField, GroupLayout.PREFERRED_SIZE, 482, GroupLayout.PREFERRED_SIZE)
+                                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+                                                                .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                                                                .addGap(0, 0, Short.MAX_VALUE)
+                                                                                .addComponent(this.exportPreferencesButton))
+                                                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                                                                .addComponent(this.loadPreferenceLabel)
+                                                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                                .addComponent(this.loadPreferenceComboBox)
+                                                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                                                .addComponent(this.refreshPreferenceButton, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)))
+                                                                .addGap(6, 6, 6)))
+                                                .addGroup(contentPaneLayout.createParallelGroup()
+                                                        .addComponent(this.removePreferenceButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(this.sourceButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                                .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                                                .addComponent(this.importPreferencesButton)
+                                                                .addGap(207, 207, 207))
+                                                        .addComponent(this.destinationLocationField, GroupLayout.PREFERRED_SIZE, 482, GroupLayout.PREFERRED_SIZE))
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                                 .addComponent(this.destinationButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)))
-                                .addContainerGap(45, Short.MAX_VALUE))
-                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
-                                .addContainerGap(165, Short.MAX_VALUE)
-                                .addComponent(this.importPreferencesButton)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(this.exportPreferencesButton)
-                                .addGap(171, 171, 171))
+                                .addGap(46, 46, 46))
         );
         contentPaneLayout.setVerticalGroup(
                 contentPaneLayout.createParallelGroup()
                         .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
                                 .addGap(23, 23, 23)
                                 .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(this.removePreferenceButton, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(this.loadPreferenceLabel)
+                                        .addComponent(this.removePreferenceButton, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(this.refreshPreferenceButton, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(this.loadPreferenceComboBox, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE))
                                 .addGap(37, 37, 37)
                                 .addComponent(this.sourceLabel)
@@ -273,10 +287,10 @@ public class MainFrame extends JFrame {
                                 .addComponent(this.savePreferenceButton, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
                                 .addGap(30, 30, 30)
                                 .addComponent(this.startOperationButton, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(this.exportPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(this.importPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(this.importPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(this.exportPreferencesButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE))
                                 .addContainerGap())
         );
         pack();
@@ -288,6 +302,16 @@ public class MainFrame extends JFrame {
         this.sourceChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         this.destinationChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         this.exportPreferencesChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    }
+
+    private ImageIcon loadRefreshImageIcon() {
+        ImageIcon imageIcon = null;
+        try {
+            imageIcon = new ImageIcon(ResourceUtils.getURL("classpath:refresh.png"));
+        } catch (FileNotFoundException ignored) {
+        }
+
+        return imageIcon;
     }
 
     private void savePreferenceButtonActionPerformed() {
