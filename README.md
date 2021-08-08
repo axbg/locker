@@ -35,4 +35,4 @@ generator that will create a complex, hard-to-break password.
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum and VirusTotal scan report:**
-[2878C80B4D4DD2DEE3F7F8553555466360B230486A681E1C3FC35903491F9383](https://www.virustotal.com/gui/file/2878C80B4D4DD2DEE3F7F8553555466360B230486A681E1C3FC35903491F9383/detect)
+[6CD8B7941051984FCD2A569A9D9D4F578D42801B9EC434AD68D5EB71B3E9FF50](https://www.virustotal.com/gui/file/6CD8B7941051984FCD2A569A9D9D4F578D42801B9EC434AD68D5EB71B3E9FF50/detect)

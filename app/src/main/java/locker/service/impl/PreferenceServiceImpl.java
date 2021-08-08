@@ -62,7 +62,7 @@ public class PreferenceServiceImpl implements PreferenceService {
     }
 
     @Override
-    public void savePreference(Preference preference) {
+    public void savePreference(Preference preference) throws AppException {
         this.cryptoService.initCipher(this.preferenceFilePassword, OperationMode.ENCRYPT);
 
         String stringPreference = preference.toString();
@@ -74,14 +74,15 @@ public class PreferenceServiceImpl implements PreferenceService {
 
         try {
             Files.write(this.lockerHomePath, content, this.lockerHomePath.toFile().exists() ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW);
-        } catch (IOException ignored) {
+        } catch (IOException ex) {
+            throw new AppException("Error occurred while saving preference");
         }
 
         this.preferences.put(preference.getName(), preference);
     }
 
     @Override
-    public void removePreference(String name) {
+    public void removePreference(String name) throws AppException {
         Map<String, Preference> filteredPreferences = this.preferences.values().stream()
                 .filter(preference -> !name.equals(preference.getName()))
                 .collect(Collectors.toMap(Preference::getName, preference -> preference));
@@ -97,7 +98,7 @@ public class PreferenceServiceImpl implements PreferenceService {
     }
 
     @Override
-    public void exportPreferences(String password, File file) {
+    public void exportPreferences(String password, File file) throws AppException {
         this.savePreferencesToDisk(this.preferences, password, Path.of(file.getAbsolutePath(), EXPORTED_PREFERENCES_FILE_NAME));
     }
 
@@ -144,13 +145,13 @@ public class PreferenceServiceImpl implements PreferenceService {
 
                     readFirst = !readFirst;
                 }
-            } catch (IOException ignored) {
+            } catch (IOException ex) {
                 throw new AppException(PREFERENCE_BAD_FILE_ERROR);
             }
         }
     }
 
-    private void savePreferencesToDisk(Map<String, Preference> preferences, String password, Path path) {
+    private void savePreferencesToDisk(Map<String, Preference> preferences, String password, Path path) throws AppException {
         this.cryptoService.initCipher(password, OperationMode.ENCRYPT);
 
         byte[] content = preferences.values().stream()
@@ -164,7 +165,8 @@ public class PreferenceServiceImpl implements PreferenceService {
                 .getBytes();
         try {
             Files.write(path, content);
-        } catch (IOException ignored) {
+        } catch (IOException ex) {
+            throw new AppException("Error occurred while updating preferences");
         }
     }
 }
