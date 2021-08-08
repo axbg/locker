@@ -15,9 +15,9 @@ public interface PreferenceService {
 
     void savePreference(Preference preference) throws AppException;
 
-    void removePreference(String name);
+    void removePreference(String name) throws AppException;
 
     void importPreferences(String password, File file, String postfix) throws AppException;
 
-    void exportPreferences(String password, File file);
+    void exportPreferences(String password, File file) throws AppException;
 }
