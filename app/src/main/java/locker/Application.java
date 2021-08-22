@@ -1,5 +1,6 @@
 package locker;
 
+import locker.exception.AppException;
 import locker.service.CommandLineService;
 import locker.service.UIService;
 import locker.ui.MainFrame;
@@ -22,7 +23,7 @@ public class Application implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws AppException {
         if (args.length == 0) {
             this.uiService.loadUI(new MainFrame());
         } else {

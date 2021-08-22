@@ -9,6 +9,8 @@ public class CommandLineObject {
     Path destination;
     OperationMode operationMode;
     Preference preference;
+    Preference pairPreference;
+    String preferenceName;
 
     public Path getSource() {
         return source;
@@ -40,5 +42,21 @@ public class CommandLineObject {
 
     public void setPreference(Preference preference) {
         this.preference = preference;
+    }
+
+    public Preference getPairPreference() {
+        return pairPreference;
+    }
+
+    public void setPairPreference(Preference pairPreference) {
+        this.pairPreference = pairPreference;
+    }
+
+    public String getPreferenceName() {
+        return preferenceName;
+    }
+
+    public void setPreferenceName(String preferenceName) {
+        this.preferenceName = preferenceName;
     }
 }
