@@ -59,4 +59,10 @@ public class Preference {
         return name + SEPARATOR + source + SEPARATOR + destination + SEPARATOR + password
                 + SEPARATOR + (operationMode == OperationMode.ENCRYPT ? "1" : "0");
     }
+
+    public String getPrintableFormat() {
+        return String.format("Name: %s %s Source: %s %s Destination %s %s Operation: %s %s",
+                name, SEPARATOR, source, SEPARATOR, destination, SEPARATOR,
+                operationMode == OperationMode.ENCRYPT ? "Encrypt" : "Decrypt", SEPARATOR);
+    }
 }

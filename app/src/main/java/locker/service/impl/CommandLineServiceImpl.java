@@ -15,6 +15,10 @@ import java.util.List;
 
 @Service
 public class CommandLineServiceImpl implements CommandLineService {
+    private static final String LIST_COMMAND = "list";
+    private static final String EXECUTE_COMMAND = "execute";
+    private static final String PREFERENCE_COMMAND = "preference";
+
     private final PreferenceService preferenceService;
     private final FileService fileService;
     private final PasswordService passwordService;
@@ -33,38 +37,65 @@ public class CommandLineServiceImpl implements CommandLineService {
         this.preferenceService.loadInitialPreferences();
         CommandLineObject clo = this.parseArgs(args);
 
-        if (args.length == 1) {
-            this.doOperation(clo);
-        } else {
-            this.savePreference(clo);
+        switch (clo.getCommand()) {
+            case PREFERENCE_COMMAND:
+                this.savePreference(clo);
+                break;
+            case EXECUTE_COMMAND:
+                this.doOperation(clo);
+                break;
+            case LIST_COMMAND:
+                this.listPreference(clo);
+                break;
         }
     }
 
     private CommandLineObject parseArgs(String... args) {
-        if (args.length != 1 && args.length != 4 && args.length != 5) {
+        if (args.length < 1 || args.length > 5 || args.length == 3) {
             throw new IllegalArgumentException(
-                    "4 or 5 arguments are required: (add_preference) source, destination, operation, preference_name. " +
+                    "1, 2, 4 or 5 arguments are required: preference_name/'list' source/preference_name, destination, operation, preference_name. " +
                             "Only " + args.length + " were passed");
         }
 
         CommandLineObject clo = new CommandLineObject();
-        clo.setPreferenceName(args[0]);
 
-        Preference preference = parsePreference(args[0]);
-        clo.setPreference(preference);
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (args[0]) {
+            case LIST_COMMAND:
+                clo.setCommand(LIST_COMMAND);
 
-        if (args.length == 1) {
-            if (preference == null) {
-                throw new IllegalArgumentException("Requested preference was not found");
-            }
-        } else {
-            clo.setSource(parsePath(args[1]));
-            clo.setDestination(parsePath(args[2]));
-            clo.setOperationMode(args[3].equals("encrypt") ? OperationMode.ENCRYPT : OperationMode.DECRYPT);
+                if (args.length == 2) {
+                    Preference preference = parsePreference(args[1]);
 
-            if (args.length == 5) {
-                clo.setPairPreference(parsePreference(args[4]));
-            }
+                    if (preference == null) {
+                        throw new IllegalArgumentException("Requested preference was not found");
+                    }
+
+                    clo.setPreference(parsePreference(args[1]));
+                }
+                break;
+            default:
+                Preference preference = parsePreference(args[0]);
+                clo.setPreference(preference);
+                clo.setPreferenceName(args[0]);
+
+                if (args.length == 1) {
+                    if (preference == null) {
+                        throw new IllegalArgumentException("Requested preference was not found");
+                    }
+
+                    clo.setCommand(EXECUTE_COMMAND);
+                } else {
+                    clo.setCommand(PREFERENCE_COMMAND);
+                    clo.setSource(parsePath(args[1]));
+                    clo.setDestination(parsePath(args[2]));
+                    clo.setOperationMode(args[3].equals("encrypt") ? OperationMode.ENCRYPT : OperationMode.DECRYPT);
+
+                    if (args.length == 5) {
+                        clo.setPairPreference(parsePreference(args[4]));
+                    }
+                }
+                break;
         }
 
         return clo;
@@ -122,5 +153,13 @@ public class CommandLineServiceImpl implements CommandLineService {
 
         long removed = this.fileService.wipeAdditionalFiles(currentFiles, destinationFile);
         System.out.println("Finished! Updated " + updated + " and removed " + removed + " additional files");
+    }
+
+    private void listPreference(CommandLineObject clo) {
+        if (clo.getPreference() != null) {
+            System.out.println(clo.getPreference().getPrintableFormat());
+        } else {
+            this.preferenceService.getPreferencesNames().forEach(System.out::println);
+        }
     }
 }

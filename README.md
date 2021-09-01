@@ -75,9 +75,22 @@ java -jar locker.jar cli-en
 java -jar locker.jar cli-dec
 ```
 
+To list all the preferences registered in the application, run:
+
+```bash
+java -jar locker.jar list
+```
+
+Using the following output, additional information about a particular preference can be requested:
+
+```bash
+# java -jar locker.jar list preference-name
+java -jar locker.jar list cli-en
+```
+
 #
 
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum and VirusTotal scan report:**
-[B12131EBB04C327207B0519D8D169B48A0E2A54785993CBF28364D39DBD36E3C](https://www.virustotal.com/gui/file/B12131EBB04C327207B0519D8D169B48A0E2A54785993CBF28364D39DBD36E3C/detect)
+[3BAB67961E9C60E80EDA8F41AE2F33DDF448A4B903FA8763FBE6334700C8B606](https://www.virustotal.com/gui/file/3BAB67961E9C60E80EDA8F41AE2F33DDF448A4B903FA8763FBE6334700C8B606/detect)
