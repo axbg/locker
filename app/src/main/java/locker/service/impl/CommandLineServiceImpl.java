@@ -18,6 +18,7 @@ public class CommandLineServiceImpl implements CommandLineService {
     private static final String LIST_COMMAND = "list";
     private static final String EXECUTE_COMMAND = "execute";
     private static final String PREFERENCE_COMMAND = "preference";
+    private static final String REMOVE_COMMAND = "remove";
 
     private final PreferenceService preferenceService;
     private final FileService fileService;
@@ -47,6 +48,9 @@ public class CommandLineServiceImpl implements CommandLineService {
             case LIST_COMMAND:
                 this.listPreference(clo);
                 break;
+            case REMOVE_COMMAND:
+                this.removePreference(clo);
+                break;
         }
     }
 
@@ -59,7 +63,6 @@ public class CommandLineServiceImpl implements CommandLineService {
 
         CommandLineObject clo = new CommandLineObject();
 
-        //noinspection SwitchStatementWithTooFewBranches
         switch (args[0]) {
             case LIST_COMMAND:
                 clo.setCommand(LIST_COMMAND);
@@ -73,6 +76,15 @@ public class CommandLineServiceImpl implements CommandLineService {
 
                     clo.setPreference(parsePreference(args[1]));
                 }
+                break;
+            case REMOVE_COMMAND:
+                clo.setCommand(REMOVE_COMMAND);
+
+                if (args.length != 2) {
+                    throw new IllegalArgumentException("Preference name was not correctly specified");
+                }
+
+                clo.setPreferenceName(args[1]);
                 break;
             default:
                 Preference preference = parsePreference(args[0]);
@@ -160,6 +172,15 @@ public class CommandLineServiceImpl implements CommandLineService {
             System.out.println(clo.getPreference().getPrintableFormat());
         } else {
             this.preferenceService.getPreferencesNames().forEach(System.out::println);
+        }
+    }
+
+    private void removePreference(CommandLineObject clo) {
+        try {
+            this.preferenceService.removePreference(clo.getPreferenceName());
+            System.out.println("Removed preference: " + clo.getPreferenceName());
+        } catch (AppException e) {
+            System.out.println(e.getMessage());
         }
     }
 }

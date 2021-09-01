@@ -88,9 +88,16 @@ Using the following output, additional information about a particular preference
 java -jar locker.jar list cli-en
 ```
 
+When a preference has to be removed, the following command can be used:
+
+```bash
+# java -jar locker.jar remove preference-name
+java -jar lcoker.jar remove cli-en
+```
+
 #
 
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum and VirusTotal scan report:**
-[3BAB67961E9C60E80EDA8F41AE2F33DDF448A4B903FA8763FBE6334700C8B606](https://www.virustotal.com/gui/file/3BAB67961E9C60E80EDA8F41AE2F33DDF448A4B903FA8763FBE6334700C8B606/detect)
+[FD439C9A7FE74C4F66AB95A5824A8E2974C4385B73424BAF97B6E60A22CE03D9](https://www.virustotal.com/gui/file/FD439C9A7FE74C4F66AB95A5824A8E2974C4385B73424BAF97B6E60A22CE03D9/detect)
