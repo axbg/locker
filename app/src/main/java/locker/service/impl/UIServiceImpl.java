@@ -9,6 +9,8 @@ import locker.ui.MainFrame;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,15 +112,56 @@ public class UIServiceImpl implements UIService {
 
     private void startOperation() {
         if (isInputValid()) {
-            int updated = 0;
-            List<String> currentFiles = new ArrayList<>();
-
             if (!this.cryptoService.initCipher(password, operationMode)) {
                 this.mainFrame.displayMessagePrompt(ERROR_DURING_KEY_INIT, ERROR_MESSAGE);
                 return;
             }
 
-            for (File file : this.fileService.getFilesFromDestination(sourceFile)) {
+            String result = operate(this.sourceFile, this.destinationFile);
+            String[] parsedResult = result.split("/");
+
+            this.mainFrame.displayMessagePrompt("Finished! Updated " + parsedResult[0] + " and removed " + parsedResult[1] + " additional files", INFORMATION_MESSAGE);
+        }
+    }
+
+    private boolean isInputValid() {
+        if (this.sourceFile == null) {
+            this.mainFrame.displayMessagePrompt(SOURCE_FILE_MISSING, ERROR_MESSAGE);
+            return false;
+        } else if (this.destinationFile == null) {
+            this.mainFrame.displayMessagePrompt(DESTINATION_FILE_MISSING, ERROR_MESSAGE);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private String operate(File sourceFile, File destinationFile) {
+        int updated = 0;
+        int removed = 0;
+
+        List<String> currentFiles = new ArrayList<>();
+
+        for (File file : this.fileService.getFilesFromDestination(sourceFile)) {
+            if (file.isDirectory()) {
+                File correspondingDirectory = new File(destinationFile.getAbsolutePath() + "/" + file.getName());
+                currentFiles.add(correspondingDirectory.getName());
+
+                if (!correspondingDirectory.exists()) {
+                    try {
+                        Files.createDirectory(correspondingDirectory.toPath());
+                    } catch (IOException ex) {
+                        this.mainFrame.displayMessagePrompt(ERROR_DURING_OPERATION + file.getName() + " directory", ERROR_MESSAGE);
+                        break;
+                    }
+                }
+
+                String result = this.operate(file, correspondingDirectory);
+                String[] parsedResult = result.split("/");
+
+                updated += Integer.parseInt(parsedResult[0]);
+                removed += Integer.parseInt(parsedResult[1]);
+            } else {
                 String name = this.cryptoService.doNameOperation(file.getName());
                 currentFiles.add(name);
 
@@ -136,21 +179,9 @@ public class UIServiceImpl implements UIService {
                     updated++;
                 }
             }
-
-            long removed = this.fileService.wipeAdditionalFiles(currentFiles, destinationFile);
-            this.mainFrame.displayMessagePrompt("Finished! Updated " + updated + " and removed " + removed + " additional files", INFORMATION_MESSAGE);
         }
-    }
 
-    private boolean isInputValid() {
-        if (this.sourceFile == null) {
-            this.mainFrame.displayMessagePrompt(SOURCE_FILE_MISSING, ERROR_MESSAGE);
-            return false;
-        } else if (this.destinationFile == null) {
-            this.mainFrame.displayMessagePrompt(DESTINATION_FILE_MISSING, ERROR_MESSAGE);
-            return false;
-        } else {
-            return true;
-        }
+        removed += this.fileService.wipeAdditionalFiles(currentFiles, destinationFile);
+        return updated + "/" + removed;
     }
 }
