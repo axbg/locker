@@ -100,4 +100,4 @@ java -jar lcoker.jar remove cli-en
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum and VirusTotal scan report:**
-[FD439C9A7FE74C4F66AB95A5824A8E2974C4385B73424BAF97B6E60A22CE03D9](https://www.virustotal.com/gui/file/FD439C9A7FE74C4F66AB95A5824A8E2974C4385B73424BAF97B6E60A22CE03D9/detect)
+[B6DF6B3E7760F30492491A180D37A50EF317A31C4F35E191CF57EF10F9481A52](https://www.virustotal.com/gui/file/B6DF6B3E7760F30492491A180D37A50EF317A31C4F35E191CF57EF10F9481A52/detect)
