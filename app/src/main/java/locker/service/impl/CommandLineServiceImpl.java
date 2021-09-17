@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class CommandLineServiceImpl implements CommandLineService {
@@ -21,16 +19,16 @@ public class CommandLineServiceImpl implements CommandLineService {
     private static final String REMOVE_COMMAND = "remove";
 
     private final PreferenceService preferenceService;
-    private final FileService fileService;
     private final PasswordService passwordService;
     private final CryptoService cryptoService;
+    private final OperationService operationService;
 
-    CommandLineServiceImpl(PreferenceService preferenceService, FileService fileService,
-                           PasswordService passwordService, CryptoService cryptoService) {
+    CommandLineServiceImpl(PreferenceService preferenceService, PasswordService passwordService,
+                           CryptoService cryptoService, OperationService operationService) {
         this.preferenceService = preferenceService;
-        this.fileService = fileService;
         this.passwordService = passwordService;
         this.cryptoService = cryptoService;
+        this.operationService = operationService;
     }
 
     @Override
@@ -138,9 +136,6 @@ public class CommandLineServiceImpl implements CommandLineService {
     }
 
     private void doOperation(CommandLineObject clo) throws AppException {
-        int updated = 0;
-        List<String> currentFiles = new ArrayList<>();
-
         Preference preference = clo.getPreference();
         File sourceFile = new File(preference.getSource());
         File destinationFile = new File(preference.getDestination());
@@ -149,22 +144,14 @@ public class CommandLineServiceImpl implements CommandLineService {
             throw new AppException("Exception occurred during secret reading");
         }
 
-        for (File file : this.fileService.getFilesFromDestination(sourceFile)) {
-            String name = this.cryptoService.doNameOperation(file.getName());
-            currentFiles.add(name);
-
-            if (!this.fileService.versionAlreadyExisting(file, destinationFile, name)) {
-                byte[] content = this.cryptoService.doContentOperation(file);
-                if (!fileService.saveFile(destinationFile, name, content)) {
-                    System.out.println("Error occurred while executing operation on " + file.getName());
-                }
-
-                updated++;
-            }
+        try {
+            String result = this.operationService.operate(sourceFile, destinationFile);
+            String[] parsedResult = result.split("/");
+            System.out.println("Finished! Updated " + parsedResult[0] + " and removed " + parsedResult[1] + " additional files");
+        } catch (AppException ex) {
+            System.out.println(ex.getMessage());
         }
 
-        long removed = this.fileService.wipeAdditionalFiles(currentFiles, destinationFile);
-        System.out.println("Finished! Updated " + updated + " and removed " + removed + " additional files");
     }
 
     private void listPreference(CommandLineObject clo) {
