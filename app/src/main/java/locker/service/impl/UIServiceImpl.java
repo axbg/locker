@@ -9,10 +9,6 @@ import locker.ui.MainFrame;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
@@ -24,12 +20,11 @@ public class UIServiceImpl implements UIService {
     private static final String PREFERENCES_IMPORT_FINISHED = "The preferences were imported!";
     private static final String PREFERENCES_EXPORT_FINISHED = "The preferences were exported!";
     private static final String ERROR_DURING_KEY_INIT = "Error during key initialization";
-    private static final String ERROR_DURING_OPERATION = "Error occurred during operation on ";
 
-    private final FileService fileService;
     private final CryptoService cryptoService;
     private final PreferenceService preferenceService;
     private final PasswordService passwordService;
+    private final OperationService operationService;
 
     private MainFrame mainFrame;
 
@@ -38,12 +33,12 @@ public class UIServiceImpl implements UIService {
     private OperationMode operationMode = OperationMode.ENCRYPT;
     private String password;
 
-    public UIServiceImpl(FileService fileService, CryptoService cryptoService, PreferenceService preferenceService,
-                         PasswordService passwordService) {
-        this.fileService = fileService;
+    public UIServiceImpl(CryptoService cryptoService, PreferenceService preferenceService, PasswordService passwordService,
+                         OperationService operationService) {
         this.cryptoService = cryptoService;
         this.preferenceService = preferenceService;
         this.passwordService = passwordService;
+        this.operationService = operationService;
     }
 
     @Override
@@ -117,10 +112,13 @@ public class UIServiceImpl implements UIService {
                 return;
             }
 
-            String result = operate(this.sourceFile, this.destinationFile);
-            String[] parsedResult = result.split("/");
-
-            this.mainFrame.displayMessagePrompt("Finished! Updated " + parsedResult[0] + " and removed " + parsedResult[1] + " additional files", INFORMATION_MESSAGE);
+            try {
+                String result = this.operationService.operate(this.sourceFile, this.destinationFile);
+                String[] parsedResult = result.split("/");
+                this.mainFrame.displayMessagePrompt("Finished! Updated " + parsedResult[0] + " and removed " + parsedResult[1] + " additional files", INFORMATION_MESSAGE);
+            } catch (AppException ex) {
+                this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
+            }
         }
     }
 
@@ -134,54 +132,5 @@ public class UIServiceImpl implements UIService {
         } else {
             return true;
         }
-    }
-
-    private String operate(File sourceFile, File destinationFile) {
-        int updated = 0;
-        int removed = 0;
-
-        List<String> currentFiles = new ArrayList<>();
-
-        for (File file : this.fileService.getFilesFromDestination(sourceFile)) {
-            if (file.isDirectory()) {
-                File correspondingDirectory = new File(destinationFile.getAbsolutePath() + "/" + file.getName());
-                currentFiles.add(correspondingDirectory.getName());
-
-                if (!correspondingDirectory.exists()) {
-                    try {
-                        Files.createDirectory(correspondingDirectory.toPath());
-                    } catch (IOException ex) {
-                        this.mainFrame.displayMessagePrompt(ERROR_DURING_OPERATION + file.getName() + " directory", ERROR_MESSAGE);
-                        break;
-                    }
-                }
-
-                String result = this.operate(file, correspondingDirectory);
-                String[] parsedResult = result.split("/");
-
-                updated += Integer.parseInt(parsedResult[0]);
-                removed += Integer.parseInt(parsedResult[1]);
-            } else {
-                String name = this.cryptoService.doNameOperation(file.getName());
-                currentFiles.add(name);
-
-                if (!this.fileService.versionAlreadyExisting(file, destinationFile, name)) {
-                    try {
-                        byte[] content = this.cryptoService.doContentOperation(file);
-                        if (!fileService.saveFile(destinationFile, name, content)) {
-                            throw new AppException(ERROR_DURING_OPERATION + file.getName());
-                        }
-                    } catch (AppException ex) {
-                        this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
-                        break;
-                    }
-
-                    updated++;
-                }
-            }
-        }
-
-        removed += this.fileService.wipeAdditionalFiles(currentFiles, destinationFile);
-        return updated + "/" + removed;
     }
 }
