@@ -43,14 +43,30 @@ public class FileServiceImpl implements FileService {
     public long wipeAdditionalFiles(List<String> files, File destination) {
         return Arrays.stream(Objects.requireNonNull(destination.listFiles()))
                 .filter(file -> !files.contains(file.getName()))
-                .map(File::delete)
-                .filter(value -> value)
-                .count();
+                .map(this::wipeFile)
+                .reduce(0, Integer::sum);
     }
 
     private File[] filterIgnoredFiles(File[] files) {
         return Arrays.stream(files)
                 .filter(file -> !IGNORED_FILES.contains(file.getName().toUpperCase()))
                 .toArray(File[]::new);
+    }
+
+    private int wipeFile(File file) {
+        int removed = 0;
+
+        if (file.isDirectory()) {
+            for (File innerFile : Objects.requireNonNull(file.listFiles())) {
+                removed += this.wipeFile(innerFile);
+            }
+
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        } else {
+            removed = file.delete() ? 1 : 0;
+        }
+
+        return removed;
     }
 }

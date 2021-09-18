@@ -9,8 +9,6 @@ import locker.ui.MainFrame;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
@@ -22,12 +20,11 @@ public class UIServiceImpl implements UIService {
     private static final String PREFERENCES_IMPORT_FINISHED = "The preferences were imported!";
     private static final String PREFERENCES_EXPORT_FINISHED = "The preferences were exported!";
     private static final String ERROR_DURING_KEY_INIT = "Error during key initialization";
-    private static final String ERROR_DURING_OPERATION = "Error occurred during operation on ";
 
-    private final FileService fileService;
     private final CryptoService cryptoService;
     private final PreferenceService preferenceService;
     private final PasswordService passwordService;
+    private final OperationService operationService;
 
     private MainFrame mainFrame;
 
@@ -36,12 +33,12 @@ public class UIServiceImpl implements UIService {
     private OperationMode operationMode = OperationMode.ENCRYPT;
     private String password;
 
-    public UIServiceImpl(FileService fileService, CryptoService cryptoService, PreferenceService preferenceService,
-                         PasswordService passwordService) {
-        this.fileService = fileService;
+    public UIServiceImpl(CryptoService cryptoService, PreferenceService preferenceService, PasswordService passwordService,
+                         OperationService operationService) {
         this.cryptoService = cryptoService;
         this.preferenceService = preferenceService;
         this.passwordService = passwordService;
+        this.operationService = operationService;
     }
 
     @Override
@@ -110,35 +107,18 @@ public class UIServiceImpl implements UIService {
 
     private void startOperation() {
         if (isInputValid()) {
-            int updated = 0;
-            List<String> currentFiles = new ArrayList<>();
-
             if (!this.cryptoService.initCipher(password, operationMode)) {
                 this.mainFrame.displayMessagePrompt(ERROR_DURING_KEY_INIT, ERROR_MESSAGE);
                 return;
             }
 
-            for (File file : this.fileService.getFilesFromDestination(sourceFile)) {
-                String name = this.cryptoService.doNameOperation(file.getName());
-                currentFiles.add(name);
-
-                if (!this.fileService.versionAlreadyExisting(file, destinationFile, name)) {
-                    try {
-                        byte[] content = this.cryptoService.doContentOperation(file);
-                        if (!fileService.saveFile(destinationFile, name, content)) {
-                            throw new AppException(ERROR_DURING_OPERATION + file.getName());
-                        }
-                    } catch (AppException ex) {
-                        this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
-                        break;
-                    }
-
-                    updated++;
-                }
+            try {
+                String result = this.operationService.operate(this.sourceFile, this.destinationFile);
+                String[] parsedResult = result.split("/");
+                this.mainFrame.displayMessagePrompt("Finished! Updated " + parsedResult[0] + " and removed " + parsedResult[1] + " additional files", INFORMATION_MESSAGE);
+            } catch (AppException ex) {
+                this.mainFrame.displayMessagePrompt(ex.getMessage(), ERROR_MESSAGE);
             }
-
-            long removed = this.fileService.wipeAdditionalFiles(currentFiles, destinationFile);
-            this.mainFrame.displayMessagePrompt("Finished! Updated " + updated + " and removed " + removed + " additional files", INFORMATION_MESSAGE);
         }
     }
 
