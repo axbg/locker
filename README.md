@@ -97,7 +97,43 @@ java -jar lcoker.jar remove cli-en
 
 #
 
+### 3. Building the app
+
+To build the app you need to have a working **Maven** and **Java 11+** distributions.
+
+After you've installed these tools, clone the repo:
+
+```bash
+git clone https://github.com/axbg/locker.git
+```
+
+Navigate into the right directory
+
+```bash
+cd locker/app
+```
+
+Build the application using maven
+
+```bash
+mvn clean package
+```
+
+Navigate into the *target* directory where the build was generated
+
+```bash
+cd target
+```
+
+Run the application either in GUI or CLI mode
+
+```bash
+java -jar app-1.0.jar [additional CLI arguments]
+```
+
+#
+
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum and VirusTotal scan report:**
-[B6DF6B3E7760F30492491A180D37A50EF317A31C4F35E191CF57EF10F9481A52](https://www.virustotal.com/gui/file/B6DF6B3E7760F30492491A180D37A50EF317A31C4F35E191CF57EF10F9481A52/detect)
+[1EE3A09F5BD8B0097E767864B916290824F3D50F7712518CBBAFBE64553CFAA7](https://www.virustotal.com/gui/file/1EE3A09F5BD8B0097E767864B916290824F3D50F7712518CBBAFBE64553CFAA7/detect)
