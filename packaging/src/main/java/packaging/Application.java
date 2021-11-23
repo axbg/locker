@@ -27,6 +27,7 @@ public class Application {
 
     private static final String VIRUS_TOTAL_URL = "https://www.virustotal.com/gui/file/";
     private static final String VIRUS_TOTAL_DETECTION = "/detect";
+    private static final String VIRUS_TOTAL_DETAILS = "/details";
 
     public static void main(String[] args) {
         try {
@@ -104,7 +105,7 @@ public class Application {
             String jarInfo = jarHash;
 
             if (scanResult) {
-                jarInfo = String.format("[%s](%s%s%s)", jarHash, VIRUS_TOTAL_URL, jarHash, VIRUS_TOTAL_DETECTION);
+                jarInfo = String.format("[%s](%s%s%s)", jarHash, VIRUS_TOTAL_URL, jarHash, VIRUS_TOTAL_DETAILS);
             }
 
             raf.write(jarInfo.getBytes());

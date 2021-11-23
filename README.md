@@ -5,7 +5,6 @@ An app meant to simplify encryption and management of regularly updated files...
 Locker can be run either as a [GUI](#1-using-the-gui) or as a [CLI](#2-using-the-cli) program.
 
 #
-
 ### 1. Using the GUI
 
 ![App preview](./.images/0-preview.png)
@@ -37,7 +36,6 @@ generator that will create a complex, hard-to-break password.
 ![Password generator](./.images/4-password-generator.png)
 
 #
-
 ### 2. Using the CLI
 
 The application can be integrated into other workflows through its command-line interface.
@@ -96,7 +94,6 @@ java -jar lcoker.jar remove cli-en
 ```
 
 #
-
 ### 3. Building the app
 
 To build the app you need to have a working **Maven** and **Java 11+** distributions.
@@ -136,4 +133,4 @@ java -jar app-1.0.jar [additional CLI arguments]
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum and VirusTotal scan report:**
-[1EE3A09F5BD8B0097E767864B916290824F3D50F7712518CBBAFBE64553CFAA7](https://www.virustotal.com/gui/file/1EE3A09F5BD8B0097E767864B916290824F3D50F7712518CBBAFBE64553CFAA7/detect)
+[E105F84A216A2EA92BBDBA7DAECC9AB9CAF3C36F249D15929B9CCC703E9A5D04](https://www.virustotal.com/gui/file/E105F84A216A2EA92BBDBA7DAECC9AB9CAF3C36F249D15929B9CCC703E9A5D04/details)
