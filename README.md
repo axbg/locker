@@ -59,7 +59,7 @@ The application does not allow users to specify a custom password through its CL
 preferences can be reused, to allow the creation of an encryption-decryption preferences pair.
 
 ```bash
-# java -jar locker.jar prefernece_name source destination operation_name pair_preference_name
+# java -jar locker.jar preference_name source destination operation_name pair_preference_name
 java -jar cli-dec /Users/axbg/Desktop/en /Users/axbg/Desktop/dec decrypt cli-en
 ```
 
@@ -133,4 +133,4 @@ java -jar app-1.0.jar [additional CLI arguments]
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum and VirusTotal scan report:**
-[4B105E40373C599CD73FCD34AF4092A5525181E599F0E84ADF92A7586B714D5A](https://www.virustotal.com/gui/file/4B105E40373C599CD73FCD34AF4092A5525181E599F0E84ADF92A7586B714D5A/details)
+[1C741C7184BE60116F65C8357B33AA8D36E803B6B8D5A81DFE024B6FED692F01](https://www.virustotal.com/gui/file/1C741C7184BE60116F65C8357B33AA8D36E803B6B8D5A81DFE024B6FED692F01/details)
