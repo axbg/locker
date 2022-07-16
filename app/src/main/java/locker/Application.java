@@ -1,8 +1,8 @@
 package locker;
 
 import locker.exception.AppException;
-import locker.service.CommandLineService;
-import locker.service.UIService;
+import locker.service.input.CommandLineService;
+import locker.service.input.UIService;
 import locker.ui.MainFrame;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
