@@ -26,3 +26,9 @@ jobs:
       run: mvn -B clean package --file pom.xml
       env: 
         VIRUS_TOTAL_API_KEY: ${{ secrets.VIRUS_TOTAL_API_KEY }}
+    - name: Publish build
+        run: |
+          git config --global user.name 'axbg'
+          git config --global user.email 'bisagalexstefan@gmail.com'
+          git commit -am "Updated current build"
+          git push
