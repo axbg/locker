@@ -96,7 +96,7 @@ java -jar lcoker.jar remove cli-en
 #
 ### 3. Building the app
 
-To build the app you need to have a working **Maven** and **Java 11+** distributions.
+To build the app you need to have working **Maven** and **Java 11+** distributions.
 
 After you've installed these tools, clone the repo:
 
