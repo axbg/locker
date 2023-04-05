@@ -133,4 +133,4 @@ java -jar app-1.0.jar [additional CLI arguments]
 You can clone the repo and build the app, or directly download the provided [jar](./locker.jar).
 
 **shelf.jar SHA-512 checksum and VirusTotal scan report:**
-[FEAF5B00A317FF72D9AB8AC1F14A87CEA9D367B0CAFA4758404DD94A818EAAE0](https://www.virustotal.com/gui/file/FEAF5B00A317FF72D9AB8AC1F14A87CEA9D367B0CAFA4758404DD94A818EAAE0/details)
+[85FD16C162101EC97126338EC7C304CD022FCC7C72E57372CA0263B34D862F22](https://www.virustotal.com/gui/file/85FD16C162101EC97126338EC7C304CD022FCC7C72E57372CA0263B34D862F22/details)
